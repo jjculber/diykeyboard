@@ -4,4 +4,4 @@ The action of the keybed is what provides the mechanical interface between the m
 
 Most mass-produced electronic keyboards are one of two varieties: 
  # A synth action where the key is a single lever with negligible momentum.  
- # A digital piano action with a second lever (the hammer) to add momentum and sometimes escapement.  Yamaha and Fatar are the largest manufacturers of this style of keybed.  Yamaha and Fatar keybeds are used by most of the major keyboard manufactureres.
+ # A digital piano action with a second lever (the hammer) to add momentum and sometimes escapement.  Yamaha and Fatar are the largest manufacturers of this style of keybed.  Yamaha and Fatar keybeds are used by most of the major keyboard manufacturers.
