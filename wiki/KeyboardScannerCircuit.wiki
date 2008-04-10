@@ -1,0 +1,6 @@
+#summary Information for building a keyboard scanner circuit.
+
+= Introduction =
+The key scanning circuit provides the electronic interface between the key switches and the micro-controller.  Digital keyboards have many key switches.  At least 88*2 are required for a velocity sensitive standard piano layout, and many experimental designs call for many more.  Most microcontrollers have on the order of 10 digital I/O pins, so some scanning circuitry is necessary for all but the most trivial keyboards.
+
+== Links to scanning circuits from other pages. ==
