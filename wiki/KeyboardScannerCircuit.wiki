@@ -1,6 +1,27 @@
 #summary Information for building a keyboard scanner circuit.
 
 = Introduction =
-The key scanning circuit provides the electronic interface between the key switches and the micro-controller.  Digital keyboards have many key switches.  At least 88*2 are required for a velocity sensitive standard piano layout, and many experimental designs call for many more.  Most microcontrollers have on the order of 10 digital I/O pins, so some scanning circuitry is necessary for all but the most trivial keyboards.
+The key scanning circuit provides the electronic interface between the key switches and the micro-controller.  Digital keyboards have many key switches.  At least 88*2 are required for a velocity sensitive standard piano layout, and many experimental designs call for many more.  Most microcontrollers have on the order of 10-20 digital I/O pins, so some scanning circuitry is necessary for all but the most trivial keyboards.
 
-== Links to scanning circuits from other pages. ==
+== Useful Parts ==
+SN74LS138N is the only DIP 3->8 pin decoder on digikey.  Nice old school TTL logic family chip.
+
+I'm really happy with the atmel atmega168 that I started using thanks to the excellent work of the [http://www.arduino.cc  arduino project], which is a cheaper and easier to use branch of the [http://www.wiring.org.co/ Wiring Project].  The standard board can be programmed over USB, and it has a cross-platform IDE that really just works, even in OS X! 
+
+== Links to Scanning Circuits ==
+
+[http://www.hinton-instruments.co.uk/components/kv64/index.htm Velocity sensing IC gets 5 octaves with no further chips, 68 pin PLCC package]
+
+[http://www.cedos.com/e510_midi_chip.htm E510 Velocity sensitive MIDI chip.  (Changeover switch type)
+16 PIN DIL 128 keys velocity sensitive keyboard scanner!!]
+
+Some DIY keyboard scanners based on PIC16F84:
+http://www.geocities.com/JDPetkov/Hardware/mkcv96/mkcv96.htm
+http://www.geocities.com/JDPetkov/Hardware/mkc128/mkc128.htm  
+http://www.geocities.com/JDPetkov/Hardware/midikeyb/midikeyb.htm  (No velocity sensing)
+
+A DIY project, based on microcontroller, uses 74HC138
+http://www.meadowfield.freeuk.com/synth/midiscan.PDF
+
+MIDI keyboard Encoder (No velocity sensing)
+http://tomscarff.tripod.com/key2midi/key2midi.htm
