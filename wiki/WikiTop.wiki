@@ -1,10 +1,11 @@
 #summary Top level page of the DIY Keyboard Wiki
 
-= Introduction =
 This is the top level for the DIY Keyboard Wiki.  Anyone interested in building their own keyboard is welcome to contribute code and/or information.  
 
-== KeyboardScannerCircuit ==
+= Keyboard Subsystems =
+ *== KeyboardScannerCircuit ==
+ *== KeybedAction ==
+ *== SoundModule ==
 
 == Related Discussion Forums ==
 [http://groups.google.com/group/musicnotation The Music Notation Project Forum] is of interest due to the tight web of influence between key layout, music notation, and music theory.
-
