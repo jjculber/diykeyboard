@@ -3,6 +3,8 @@
 = Introduction =
 This is the top level for the DIY Keyboard Wiki.  Anyone interested in building their own keyboard is welcome to contribute code and/or information.  
 
-== Links= =
+== KeyboardScannerCircuit ==
 
 == Related Discussion Forums ==
+[http://groups.google.com/group/musicnotation The Music Notation Project Forum] is of interest due to the tight web of influence between key layout, music notation, and music theory.
+
