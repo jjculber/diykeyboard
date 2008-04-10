@@ -3,7 +3,7 @@
 This is the top level for the DIY Keyboard Wiki.  Anyone interested in building their own keyboard is welcome to contribute code and/or information.  
 
 == Keyboard Subsystems: ==
- *== KeyLayout
+ *== KeyLayout ==
  *== KeyboardScannerCircuit ==
  *== KeybedAction ==
  *== SoundModule ==
