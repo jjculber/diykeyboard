@@ -12,16 +12,13 @@ I'm really happy with the atmel atmega168 that I started using thanks to the exc
 
 [http://www.hinton-instruments.co.uk/components/kv64/index.htm Velocity sensing IC gets 5 octaves with no further chips, 68 pin PLCC package]
 
-[http://www.cedos.com/e510_midi_chip.htm E510 Velocity sensitive MIDI chip.  (Changeover switch type)
-16 PIN DIL 128 keys velocity sensitive keyboard scanner!!]
+[http://www.cedos.com/e510_midi_chip.htm E510 Velocity sensitive MIDI chip.  Changeover switch type. 16 PIN DIL 128 keys velocity sensitive keyboard scanner]
 
 Some DIY keyboard scanners based on PIC16F84:
-http://www.geocities.com/JDPetkov/Hardware/mkcv96/mkcv96.htm
-http://www.geocities.com/JDPetkov/Hardware/mkc128/mkc128.htm  
-http://www.geocities.com/JDPetkov/Hardware/midikeyb/midikeyb.htm  (No velocity sensing)
+ * http://www.geocities.com/JDPetkov/Hardware/mkcv96/mkcv96.htm
+ * http://www.geocities.com/JDPetkov/Hardware/mkc128/mkc128.htm  
+ * http://www.geocities.com/JDPetkov/Hardware/midikeyb/midikeyb.htm  (No velocity sensing)
 
-A DIY project, based on microcontroller, uses 74HC138
-http://www.meadowfield.freeuk.com/synth/midiscan.PDF
+[http://www.meadowfield.freeuk.com/synth/midiscan.PDF A DIY project, based on microcontroller, uses 74HC138 decoder chip]
 
-MIDI keyboard Encoder (No velocity sensing)
-http://tomscarff.tripod.com/key2midi/key2midi.htm
+[http://tomscarff.tripod.com/key2midi/key2midi.htm MIDI keyboard Encoder (No velocity sensing)]
