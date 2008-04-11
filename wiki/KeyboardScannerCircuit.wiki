@@ -22,3 +22,7 @@ Some DIY keyboard scanners based on PIC16F84:
 [http://www.meadowfield.freeuk.com/synth/midiscan.PDF A DIY project, based on microcontroller, uses 74HC138 decoder chip]
 
 [http://tomscarff.tripod.com/key2midi/key2midi.htm MIDI keyboard Encoder (No velocity sensing)]
+
+== Circuit Board Layout and Fabrication ==
+One fab house popular among DIYers: 
+http://www.4pcb.com/
