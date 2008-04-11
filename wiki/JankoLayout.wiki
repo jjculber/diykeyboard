@@ -1,0 +1,5 @@
+#summary Information about the Janko Keyboard Layout
+
+Currently the best explanation of the Janko key layout is at Noel Cragg's Page.
+[http://www.red-bean.com/~noel/uniform-keyboard/ The Uniform Keyboard]
+
