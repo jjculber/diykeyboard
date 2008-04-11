@@ -8,6 +8,8 @@ The vast majority of commercial keyboards use rubber membrane key-switches.  Whi
 == OpticalKeyswitches ==
 LED/Photodiode pairs are more reliable than rubber keyswitches, and are already seem to be the for retrofitting acoustic pianos with digital technology.  
 
+== ConductingSpringSwitch ==
+
 == MagneticKeyswitches ==
 Magnetic switches (hall effect sensors).  Hall effect sensors are four terminal devices.  If put a current across the chip in one direction, an applied magnetic field will alter the trajectory of the moving electrons, resulting in a measurable voltage potential across the other two pins.  While these can be as cheap as optical sensors, it is a lot harder to prevent magnetic interference between keys than it is to prevent optical interference.  
 
