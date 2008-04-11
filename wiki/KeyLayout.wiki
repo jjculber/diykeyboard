@@ -5,7 +5,7 @@ The actual arrangement of the keys can have a significant impact on how difficul
 =The Traditional 5-7 layout=
 This is the key layout that currently dominates western music.  Your acoustic piano almost certainly has this layout.  The standard music staff has this layout.  The names by which you refer to notes even have this layout.  A C major scale can be played on all white keys.  
 
-=The Janko 6-6 layout=
+=JankoLayout (aka 6-6)=
 The Janko layout is the alternative layout that is most similar to the traditional layout.  Keys increase linearly by half-steps as on a traditional piano.  Multiple touch-points are provided on each key.  The touch-points overlap adjacent keys horizontally and alternate rows vertically.  
 This layout confers the following advantages:
  * Transposition can be performed simply by starting on a different key, reducing the number of scales, etc. to be learned by a factor of 12 over the 5-7 layout.
