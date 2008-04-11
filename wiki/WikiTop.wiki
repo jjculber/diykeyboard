@@ -4,8 +4,9 @@ This is the top level for the DIY Keyboard Wiki.  Anyone interested in building 
 
 == Keyboard Subsystems: ==
  *== KeyLayout ==
- *== KeyboardScannerCircuit ==
  *== KeybedAction ==
+ *== KeySwitches
+ *== KeyboardScannerCircuit ==
  *== SoundModule ==
 
 == Related Discussion Forums ==
