@@ -11,3 +11,5 @@ This layout confers the following advantages:
  * Transposition can be performed simply by starting on a different key, reducing the number of scales, etc. to be learned by a factor of 12 over the 5-7 layout.
  * For the same key width, the octave span is slightly smaller, making large intervals easier to play.
  * All chords can be slid up or down by half step intervals, up until the front-most touch point is reached.
+
+=JammerLayout=
