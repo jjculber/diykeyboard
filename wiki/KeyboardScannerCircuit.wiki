@@ -15,6 +15,8 @@ This design uses every DIO pin on the Arduino and accounts for the 176 keyswitch
 
 == Links to Scanning Circuits ==
 
+[http://www.butterflysound.jp/midicck/e/lineup.html A japanese guy selling pre-programmed PICs for key scanning.  It takes about five, and he charges about $20 each.]
+
 [http://www.hinton-instruments.co.uk/components/kv64/index.htm Velocity sensing IC gets 5 octaves with no further chips, 68 pin PLCC package]
 
 [http://www.cedos.com/e510_midi_chip.htm E510 Velocity sensitive MIDI chip.  Changeover switch type. 16 PIN DIL 128 keys velocity sensitive keyboard scanner]
