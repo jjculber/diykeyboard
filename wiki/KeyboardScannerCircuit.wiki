@@ -8,10 +8,10 @@ SN74LS138N is the only DIP 3->8 pin decoder on digikey.  Nice old school TTL log
 
 I'm really happy with the atmel atmega168 that I started using thanks to the excellent work of the [http://www.arduino.cc  arduino project], which is a cheaper and easier to use branch of the [http://www.wiring.org.co/ Wiring Project].  The standard board can be programmed over USB, and it has a cross-platform IDE that really just works, even in OS X! 
 
-== An outline for an 88 key design using an Arduino:
+== An outline for an 88 key design using an Arduino ==
 2 Arduino outputs -> 4 bit Binary Counter -> 4 to 16 Decoder (really a couple 3 by 8's ) -> 16 x 11 diode matrix -> 11 Arduino inputs.   Leaving one pin for serial transmission.
 
-That uses every DIO pin on the Arduino and accounts for the 176 keyswitches required for a velocity sensitive 88 key keyboard.  There are still 6 ADC inputs available to be used for pedals, pitch bend, etc.  (Note I'm banking on still being able to use the TX pin while using the RX pin as a DIO)
+This design uses every DIO pin on the Arduino and accounts for the 176 keyswitches required for a velocity sensitive 88 key keyboard.  There are still 6 ADC inputs available to be used for pedals, pitch bend, etc.  (Note I'm banking on still being able to use the TX pin while using the RX pin as a DIO)
 
 == Links to Scanning Circuits ==
 
