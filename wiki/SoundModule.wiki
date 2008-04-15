@@ -1,4 +1,4 @@
-#summary Keyboard Sound Production Module
+#summary Keyboard Sound Production Module MOVED
 
 A sound module converts the information from the keyboard's sensors into an (analog or digital) audio signal.  Building a good sound module is very non-trivial; indeed there is an entire industry focused on this one task.  A keyboard without this functionality is usually called a MIDI controller, and must rely on an external sound module.  While software/hardware hybrids exist, most sound modules are implemented all in hardware, or implemented all in software and run on general purpose PC hardware.
 
