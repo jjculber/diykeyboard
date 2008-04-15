@@ -1,4 +1,3 @@
-#summary Information about the conducting-spring keyswitch
+#summary Information about the conducting-spring keyswitch MOVED
 
 Some Fatar Keybeds have used a conducting spring that can come into contact with two conducting rails as a keyswitch.  Since the spring is used as an electrical contact, it is advantageous to gold-plate it to prevent corrosion.
-
