@@ -1,4 +1,4 @@
-#summary The mechanical keybed action.
+#summary The mechanical keybed action. MOVED
 
 The action of the keybed is what provides the mechanical interface between the musician's fingers and the keyboard.  At one extreme the action could be as simple as a momentary pushbutton switch.  At the other extreme would be a full grand piano action with about 5-10 moving parts.  There is a tradeoff that must be struck between complexity, cost, comfort, and playing precision.  
 
