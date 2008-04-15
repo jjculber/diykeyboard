@@ -1,3 +1,23 @@
 #summary Top level page of the DIY Keyboard Wiki
 
 WARNING: MIGRATING TO SOURCEFORGE
+
+#summary Top level page of the DIY Keyboard Wiki
+
+This is the top level for the DIY Keyboard Wiki.  Anyone interested in building their own keyboard is welcome to contribute code and/or information.  
+
+== Keyboard Subsystems: ==
+ *== KeyLayout ==
+ *== KeybedAction ==
+ *== KeySwitches ==
+ *== KeyboardScannerCircuit ==
+ *== SoundModule ==
+
+== Related Projects and Forums ==
+[http://electro-music.com/forum/index.php?f=161 The Electro-Music DIY Controller Forum]
+
+[http://electro-music.com/forum/viewtopic.php?t=17815 An FPGA based MIDI keyboard in progress]
+
+[http://www.headfuzz.co.uk/?q=midihack Adding MIDI output to a toy keyboard]
+
+[http://groups.google.com/group/musicnotation The Music Notation Project Forum] is of interest due to the tight web of influence between key layout, music notation, and music theory.
