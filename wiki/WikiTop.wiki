@@ -1,4 +1,4 @@
-#summary Top level page of the DIY Keyboard Wiki
+#summary Top level page of the DIY Keyboard Wiki MOVED
 
 WARNING: MIGRATING TO SOURCEFORGE
 
