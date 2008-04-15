@@ -1,4 +1,6 @@
-#summary Info on different key switches
+#summary Info on different key switches MOVED
+
+MOVING TO SOURCEFORGE!!!
 
 Key switches provide the interface between the mechanical and the electrical portions of the piano.  
 
