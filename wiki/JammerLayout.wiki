@@ -1,4 +1,4 @@
-#summary Jammer and other hexagonal key layouts
+#summary Jammer and other hexagonal key layouts MOVED
 
 Ken Rushton has made several interesting midi controllers by sawing apart and reconfiguring M-audio controllers.
 http://musicscienceguy.vox.com/
