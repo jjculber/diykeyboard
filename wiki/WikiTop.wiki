@@ -1,0 +1,4 @@
+#summary Obsolete DIY Keyboard Wiki
+
+Check out the new DIY Keyboard Wiki at:
+http://diykeyboard.org
