@@ -1,7 +1,0 @@
-#summary Jammer and other hexagonal key layouts MOVED
-
-Ken Rushton has made several interesting midi controllers by sawing apart and reconfiguring M-audio controllers.
-http://musicscienceguy.vox.com/
-
-Jim Plamondon has commercial product in development:
-http://www.thummer.com/
