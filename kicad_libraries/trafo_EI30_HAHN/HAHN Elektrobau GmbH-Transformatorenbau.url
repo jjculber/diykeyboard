@@ -1,0 +1,13 @@
+[DEFAULT]
+BASEURL=http://www.hahn-trafo.com/english/index.htm
+[DOC#27#29]
+BASEURL=http://www.hahn-trafo.com/english/produkt_haupte.htm
+ORIGURL=haupt.htm
+[DOC#27#29#8#10]
+BASEURL=http://www.hahn-trafo.com/english/pcb-transformers-ei30t1.php
+ORIGURL=produkt_maine.htm
+[InternetShortcut]
+URL=http://www.hahn-trafo.com/english/index.htm
+IDList=
+[{000214A0-0000-0000-C000-000000000046}]
+Prop3=19,2

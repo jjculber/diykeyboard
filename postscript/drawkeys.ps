@@ -1,0 +1,90 @@
+%!
+
+/inches {72 mul} def % Convert length from inches
+
+/degrees {} def % Convert angle from degrees
+/radians {57.2974 mul} def % Convert angle from radians
+
+2 setlinewidth
+%0.25 setgray
+
+%newpath
+%1 inches 1 inches moveto
+%0 inches 1 inches rlineto
+%2 inches 0 inches rlineto
+%closepath
+%stroke
+
+%newpath
+%1 inches 3 inch moveto
+%1 inches 0 inch rlineto
+%currentpoint 1 inch 0 degrees 270 degrees arc
+%closepath
+%stroke
+
+%newpath
+%1 inches 0 inches moveto
+%0 inches 0 inches 2 inches 0 degrees 30 degrees arc
+%0 inches 0 inches 1 inches 30 degrees 0 degrees arcn
+%closepath
+%stroke
+
+% Subroutine to draw a little cross centered at the current origin.
+/drawcross {
+	/crosswidth .2 inches def
+	newpath
+	crosswidth neg 0 moveto
+	crosswidth 0 lineto
+	stroke
+	newpath
+	0 crosswidth neg moveto
+	0 crosswidth lineto
+	stroke
+} def
+
+% Subroutine to draw a touchpoint centered at the current origin.  r1 r2 angle1 angle2
+/drawtouchpoint {
+	/angle2 exch def
+	/angle1 exch def
+	/r2 exch def
+	/r1 exch def
+	
+	/angle3 angle2 angle1 sub def
+
+	%newpath
+	%r1 0 moveto
+	%r2 0 lineto
+	%r2 angle2 30 div inches lineto
+	%r1 angle2 30 div inches lineto
+	%closepath
+	%stroke
+
+	gsave
+	angle1 rotate
+	newpath
+	r1 0 moveto
+	0 0 r2 0 angle3 arc
+	0 0 r1 angle3 0 arcn
+	closepath
+	stroke
+	grestore
+
+} def
+
+gsave
+7.5 inches 1 inches translate
+90 rotate
+drawcross
+
+/keygap .1 inches def
+
+8 inches keygap add 9 inches 0 degrees 8 degrees drawtouchpoint
+7 inches keygap add 8 inches 0 degrees 16 degrees drawtouchpoint
+6 inches keygap add 7 inches 0 degrees 24 degrees drawtouchpoint
+5 inches keygap add 6 inches 0 degrees 32 degrees drawtouchpoint
+4 inches keygap add 5 inches 0 degrees 40 degrees drawtouchpoint
+
+
+grestore
+
+showpage
