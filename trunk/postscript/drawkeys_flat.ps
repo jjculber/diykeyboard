@@ -1,0 +1,168 @@
+%!
+
+/inches {72 mul} def % Convert length from inches
+/millimeters {2.83464567 mul} def % Convert length from millimeters
+
+/degrees {} def % Convert angle from degrees
+/radians {57.2974 mul} def % Convert angle from radians
+
+% Subroutine to draw a little cross centered at the current origin.
+/drawcross {
+	/crosswidth .2 inches def
+	newpath
+	crosswidth neg 0 moveto
+	crosswidth 0 lineto
+	stroke
+	newpath
+	0 crosswidth neg moveto
+	0 crosswidth lineto
+	stroke
+} def
+
+% Major key parameters
+/keylength 1 inches def
+/keytravel_angle 4 degrees def
+
+% Yamaha key spacing
+/keyspacing 167 millimeters 7 div def
+
+% Minor key parameters
+/depressed_edge_height .1 inches def  % This is an arclength.
+/keygap .08 inches def
+
+/keywidth keyspacing keygap sub def
+
+% x y cartesian_to_angle angle
+/cartesian_to_angle {
+	exch atan
+} def
+/cartesian_to_r {
+	/paramy exch def
+	/paramx exch def
+	paramx paramx mul paramy paramy mul add sqrt
+} def
+
+
+% Subroutine to draw a touchpoint that rotates about the current origin, with a corner at the passed x,y.
+% cornerx cornery drawtouchpoint_relative nextcornerx nextcornery
+/drawtouchpoint_relative {
+	
+	% First corner in cartesian coordinates
+	/cornery exch def
+	/cornerx exch def
+
+	% First corner in polar coordinates
+	/cornerangle cornerx cornery cartesian_to_angle def
+	/cornerr cornerx cornery cartesian_to_r def
+
+	% Rear corner in cartesian coordinates
+	/rearcornerx cornerx keylength sub def
+
+	% Rear corner in polar coordinates
+	/rearcornerangle rearcornerx cornery cartesian_to_angle def
+	/rearcornerr rearcornerx cornery cartesian_to_r def
+
+	% Next corner in polar coordinates.
+	/nextcornerr rearcornerr keygap sub def
+	/depressed_edge_angle depressed_edge_height nextcornerr 3.1415 180 div mul div def
+	/nextcornerangle rearcornerangle keytravel_angle add depressed_edge_angle add def
+
+	% Draw the key!
+	gsave
+	newpath
+	nextcornerr keygap add 0 moveto % lower left corner
+	0 0 cornerr 0 cornerangle arc % 
+	0 0 nextcornerr keygap add rearcornerangle 0 arcn
+	closepath
+	stroke
+	grestore
+
+	% nextcornerx
+	nextcornerr nextcornerangle cos mul
+
+	% nextcornery
+	nextcornerr nextcornerangle sin mul
+
+} def
+
+% Draw the little boxes for cutting out the keys.
+/drawtouchpoint_cutouts {
+	
+	% First corner in cartesian coordinates
+	/cornery exch def
+	/cornerx exch def
+
+	% First corner in polar coordinates
+	/cornerangle cornerx cornery cartesian_to_angle def
+	/cornerr cornerx cornery cartesian_to_r def
+
+	% Rear corner in cartesian coordinates
+	/rearcornerx cornerx keylength sub def
+
+	% Rear corner in polar coordinates
+	/rearcornerangle rearcornerx cornery cartesian_to_angle def
+	/rearcornerr rearcornerx cornery cartesian_to_r def
+
+	% Next corner in polar coordinates.
+	/nextcornerr rearcornerr keygap sub def
+	/depressed_edge_angle depressed_edge_height nextcornerr 3.1415 180 div mul div def
+	/nextcornerangle rearcornerangle keytravel_angle add depressed_edge_angle add def
+
+	% Draw the box for cutting out the key flat!
+	newpath
+	rearcornerx cornery moveto
+	rearcornerx cornery keywidth add lineto
+	keylength 0 rlineto
+	0 keywidth neg rlineto 
+	stroke
+
+	% nextcornerx
+	nextcornerr nextcornerangle cos mul
+
+	% nextcornery
+	nextcornerr nextcornerangle sin mul
+
+} def
+
+
+1 setlinewidth
+gsave
+5.5 inches 0.5 inches translate
+90 rotate
+drawcross
+
+/firstkeyx 10 inches def
+/firstkeyy .2 inches def
+
+% Draw depressed keys.
+gsave
+keytravel_angle neg rotate
+0.5 setgray
+firstkeyx firstkeyy drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+pop pop
+grestore
+
+% Draw un-depressed keys over the depressed keys.
+0 setgray
+firstkeyx firstkeyy drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+pop pop
+
+% Draw the cutting guides for the key width!
+.8 setgray
+firstkeyx firstkeyy drawtouchpoint_cutouts
+drawtouchpoint_cutouts
+drawtouchpoint_cutouts
+drawtouchpoint_cutouts
+drawtouchpoint_cutouts
+
+grestore
+
+showpage

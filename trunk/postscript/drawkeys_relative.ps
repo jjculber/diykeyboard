@@ -1,0 +1,97 @@
+%!
+
+/inches {72 mul} def % Convert length from inches
+
+/degrees {} def % Convert angle from degrees
+/radians {57.2974 mul} def % Convert angle from radians
+
+% Subroutine to draw a little cross centered at the current origin.
+/drawcross {
+	/crosswidth .2 inches def
+	newpath
+	crosswidth neg 0 moveto
+	crosswidth 0 lineto
+	stroke
+	newpath
+	0 crosswidth neg moveto
+	0 crosswidth lineto
+	stroke
+} def
+
+% Major key parameters
+/keylength 1.2 inches def
+/keywidth 0.6 inches def
+/keytravel_angle 4 degrees def
+
+% Minor key parameters
+/depressed_edge_height .1 inches def  % This is an arclength.
+/keygap .08 inches def
+
+
+% Subroutine to draw a touchpoint that rotates about the current origin, with a corner at the passed x,y.
+% cornerx cornery drawtouchpoint_relative nextcornerx nextcornery
+/drawtouchpoint_relative {
+	/cornery exch def
+	/cornerx exch def
+	
+	/cornerr cornery cornery mul cornerx cornerx mul add sqrt def
+	/cornerangle cornery cornerx atan def
+
+	/nextcornerr cornerr keylength sub def
+
+	/depressed_edge_angle depressed_edge_height nextcornerr 3.1415 180 div mul div def
+	
+	/nextcornerangle cornerangle keytravel_angle add depressed_edge_angle add def
+
+	% First rule: keys tops are lines of constant angle.
+	gsave
+	newpath
+	nextcornerr keygap add 0 moveto
+	0 0 cornerr 0 cornerangle arc
+	0 0 nextcornerr keygap add cornerangle 0 arcn
+	closepath
+	stroke
+	grestore
+
+	% nextcornerx
+	nextcornerr nextcornerangle cos mul
+
+	% nextcornery
+	nextcornerr nextcornerangle sin mul
+
+} def
+
+1 setlinewidth
+gsave
+5.5 inches 0.5 inches translate
+90 rotate
+drawcross
+
+/firstkeyx 10 inches def
+/firstkeyy .2 inches def
+
+% Draw depressed keys.
+gsave
+keytravel_angle neg rotate
+0.5 setgray
+firstkeyx firstkeyy drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+pop pop
+grestore
+
+% Draw un-depressed keys over the depressed keys.
+0 setgray
+firstkeyx firstkeyy drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+pop pop
+
+
+grestore
+
+showpage
