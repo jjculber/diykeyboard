@@ -1,0 +1,108 @@
+﻿Option Explicit
+
+' Global Variables	
+
+Dim dblGoldenRatio : dblGoldenRatio = (1.0 + Sqr(5.0))/2 ' About 1.618, a visually pleasing ratio
+
+'Major Parameters.  Stuff that defines the basic geometry of the keys.
+Dim intRowCount : intRowCount = 5 '  The total number of rows.
+Dim dblOctaveSpacing : dblOctaveSpacing = 167.0 'mm  The center-to-center span of an octave.  170mm is Yamaha 5-7 spacing.
+Dim dblNominalKeyWidth : dblNominalKeyWidth = dblOctaveSpacing / 6.0 'mm  The Width of a key, not counting the gap between keys
+Dim dblNominalKeyDepth : dblNominalKeyDepth = dblGoldenRatio * dblNominalKeyWidth 'mm  The Depth of a key, not counting the gap between keys
+Dim dblKeyTravelAngle : dblKeyTravelAngle = 4.0 'degrees  The angle the key travels through before bottoming out.
+Dim dblDepressedKeyLedge : dblDepressedKeyLedge = 1.0 'mm.  The approximate height difference between the front of a depressed key and the next un-depressed key row.  Affects the ergonomics of chord slides.
+Dim dblFirstKeyTopFrontX : dblFirstKeyTopFrontX = 150.0 'mm.  The location of the lowest (frontmost) key corner.
+Dim dblFirstKeyTopFrontY : dblFirstKeyTopFrontX = 0.0 'mm.  The location of the lowest (frontmost) key corner.
+
+'Minor Parameters.  Stuff that doesn't really affect the ergonomics of the piano.
+Dim dblRadialKeyGap : dblOctaveSpacing = 2.0 'mm  The gap between keys expressed as a change of Radius.
+Dim dblLateralKeyGap : dblLateralKeyGap = 2.0 'mm The sideways gab between keys
+Dim dblFilletRadius : dblFilletRadius = 1.0 'mm  The radius of the fillet on most key surfaces.
+Dim dblVisibilityDepth : dblVisibilityDepth = 20 'mm Approximately how far keys extend below the next lower row when lower row is depressed.
+Dim dblFrontRowVisibilityDepth : dblFrontRowVisibilityDepth = 30 'mm  Like dblVisibilityDepth, but can be set appropriately for the front bezel.
+
+'Sub DrawTouchpointProfileCurveRelative(ByVal arrPoint1, ByVal arrPoint2, ByRef strCurveString, ByRef)
+
+Private Function Pi()
+	Pi = 3.1415926535897932
+	Pi = CDbl( Pi )
+End Function
+
+'Rotate a point counter-clockwise about the origin by specifying an angle
+Function Rotate2DPointByAngle(ByVal inX, ByVal inY, ByVal rotationAngle, ByRef outX, ByRef outY)
+Dim r
+Dim theta
+r = Sqr(inX*inX + inY*inY)
+theta = Atn(inY/inX)
+theta = theta + rotationAngle
+outX = r * Cos(theta)
+outY = r * Sin(theta)
+End Sub
+
+'Rotate a point counter-clockwise about the origin by specifying an angle (degrees)
+Function Rotate2DPointByDistance(ByVal inX, ByVal inY, ByVal rotationDistance, ByRef outX, ByRef outY)
+Dim r
+Dim theta
+Dim rotationAngle
+r = Sqr(inX*inX + inY*inY)
+theta = Atn(inY/inX)
+theta = theta + (rotationDistance / r) * (180 / Pi) 
+outX = r * Cos(theta)
+outY = r * Sin(theta)
+End Sub
+
+'Move a point radially away from the origin by a specified ammount
+Function Move2DPointRadially(ByVal inX, ByVal inY, ByVal radiationAmmount, ByRef outX, ByRef outY)
+Dim r
+Dim theta
+r = Sqr(inX*inX + inY*inY)
+r = r + radiationAmmount
+theta = Atn(inY/inX)
+outX = r * Cos(theta)
+outY = r * Sin(theta)
+End Sub
+
+Call Main()
+Sub Main()
+
+' Compute the locations of the four corners of each key in the X-Y plane.
+' The axis of rotation of the key is taken as the origin. ( The completed key object can be moved later ).
+' Keys are defined to have flat tops, bottoms, and sides, with circular arcs for front and back faces.
+' Row indeces increase towards the back of the keyboard.
+ReDim arrTopFrontCornersX(intRowCount - 1)
+ReDim arrBottomFrontCornersX(intRowCount - 1)
+ReDim arrTopBackCornersX(intRowCount - 1)
+ReDim arrBottomBackCornersX(intRowCount - 1)
+ReDim arrTopFrontCornersY(intRowCount - 1)
+ReDim arrBottomFrontCornersY(intRowCount - 1)
+ReDim arrTopBackCornersY(intRowCount - 1)
+ReDim arrBottomBackCornersY(intRowCount - 1)
+
+'Compute the geometry for the first key row.
+arrTopFrontCornersX(0) = dblFirstKeyTopFrontX
+arrTopFrontCornersY(0) = dblFirstKeyTopFrontY
+arrTopBackCornersX(0) = dblFirstKeyTopFrontX - dblNominalKeyDepth
+arrTopBackCornersY(0) = dblFirstKeyTopFrontY
+
+arrBottomFrontCornersX(0) = arrTopFrontCornersX(0) 'Copy
+arrBottomFrontCornersY(0) = arrTopFrontCornersY(0)
+
+' Allow for key travel
+Rotate2DPointByAngle(arrTopFrontCornersX(0), arrTopFrontCornersY(0), dblKeyTravelAngle, arrTopFrontCornersX(0), arrTopFrontCornersY(0)) 
+
+'Allow for a ledge of the same height to the bezel as other keys have to the next row.
+Rotate2DPointByDistance(arrTopFrontCornersX(0), arrTopFrontCornersY(0), dblKeyTravelAngle, arrTopFrontCornersX(0), arrTopFrontCornersY(0))
+
+'Allow for our user-selectable additional height
+Rotate2DPointByDistance(arrTopFrontCornersX(0), arrTopFrontCornersY(0), dblDepressedKeyLedge, arrTopFrontCornersX(0), arrTopFrontCornersY(0))
+
+arrBottomBackCornersX(0) = arrTopBackCornersX(0)
+arrBottomBackCornersY(0) = arrTopBackCornersY(0)
+
+' The bottom back corner of the front key just has to be deep enough that the gap is not visible.
+Rotate2DPointByDistance(arrBottomBackCornersX(0), arrBottomBackCornersY(0), dblVisibilityDepth, arrBottomBackCornersX(0), arrBottomBackCornersY(0))
+
+'Iterate through the rest of the rows
+
+	
+End Sub
