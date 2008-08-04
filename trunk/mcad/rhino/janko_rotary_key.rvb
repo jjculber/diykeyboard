@@ -2,107 +2,318 @@
 
 ' Global Variables	
 
-Dim dblGoldenRatio : dblGoldenRatio = (1.0 + Sqr(5.0))/2 ' About 1.618, a visually pleasing ratio
+Dim goldenRatio : goldenRatio = (1.0 + Sqr(5.0))/2.0 ' About 1.618, a visually pleasing ratio
 
 'Major Parameters.  Stuff that defines the basic geometry of the keys.
-Dim intRowCount : intRowCount = 5 '  The total number of rows.
-Dim dblOctaveSpacing : dblOctaveSpacing = 167.0 'mm  The center-to-center span of an octave.  170mm is Yamaha 5-7 spacing.
-Dim dblNominalKeyWidth : dblNominalKeyWidth = dblOctaveSpacing / 6.0 'mm  The Width of a key, not counting the gap between keys
-Dim dblNominalKeyDepth : dblNominalKeyDepth = dblGoldenRatio * dblNominalKeyWidth 'mm  The Depth of a key, not counting the gap between keys
-Dim dblKeyTravelAngle : dblKeyTravelAngle = 4.0 'degrees  The angle the key travels through before bottoming out.
-Dim dblDepressedKeyLedge : dblDepressedKeyLedge = 1.0 'mm.  The approximate height difference between the front of a depressed key and the next un-depressed key row.  Affects the ergonomics of chord slides.
-Dim dblFirstKeyTopFrontX : dblFirstKeyTopFrontX = 150.0 'mm.  The location of the lowest (frontmost) key corner.
-Dim dblFirstKeyTopFrontY : dblFirstKeyTopFrontX = 0.0 'mm.  The location of the lowest (frontmost) key corner.
+Dim rowCount : rowCount = 5 '  The total number of rows.
+Dim octaveSpacing : octaveSpacing = 167.0 'mm  The center-to-center span of an octave.  170mm is Yamaha 5-7 spacing.
+Dim nominalKeyWidth : nominalKeyWidth = octaveSpacing / 6.0 'mm  The Width of a key, including a key's worth of gap between keys
+'Dim nominalKeyDepth : nominalKeyDepth = goldenRatio * nominalKeyWidth 'mm  The Depth of a key, not counting the gap between keys
+Dim nominalKeyDepth : nominalKeyDepth = 25.0 'mm  The Depth of a key, not counting the gap between keys
+Dim keyTravelAngle : keyTravelAngle = 4.0 * Rhino.Pi / 180.0 'radians  The angle the key travels through before bottoming out.
+Dim depressedKeyLedge : depressedKeyLedge = 1.0 'mm.  The approximate height difference between the front of a depressed key and the next un-depressed key row.  Affects the ergonomics of chord slides.
+Dim firstKeyTopFrontX : firstKeyTopFrontX = 250.0 'mm.  The location of the lowest (frontmost) key corner.
+Dim firstKeyTopFrontY : firstKeyTopFrontY = 5.0 'mm.  The location of the lowest (frontmost) key corner.
 
 'Minor Parameters.  Stuff that doesn't really affect the ergonomics of the piano.
-Dim dblRadialKeyGap : dblOctaveSpacing = 2.0 'mm  The gap between keys expressed as a change of Radius.
-Dim dblLateralKeyGap : dblLateralKeyGap = 2.0 'mm The sideways gab between keys
-Dim dblFilletRadius : dblFilletRadius = 1.0 'mm  The radius of the fillet on most key surfaces.
-Dim dblVisibilityDepth : dblVisibilityDepth = 20 'mm Approximately how far keys extend below the next lower row when lower row is depressed.
-Dim dblFrontRowVisibilityDepth : dblFrontRowVisibilityDepth = 30 'mm  Like dblVisibilityDepth, but can be set appropriately for the front bezel.
+Dim radialKeyGap : radialKeyGap = 2.0 'mm  The gap between keys expressed as a change of Radius.
+Dim lateralKeyGap : lateralKeyGap = 2.0 'mm The sideways gab between keys
+Dim filletRadius : filletRadius = 1.0 'mm  The radius of the fillet on most key surfaces.
+Dim visibilityDepth : visibilityDepth = 20.0 'mm Approximately how far keys extend below the next lower row when lower row is depressed.
+Dim frontRowVisibilityDepth : frontRowVisibilityDepth = 30.0 'mm  Like VisibilityDepth, but can be set appropriately for the front bezel.
 
-'Sub DrawTouchpointProfileCurveRelative(ByVal arrPoint1, ByVal arrPoint2, ByRef strCurveString, ByRef)
+Dim keyWidth : keyWidth = nominalKeyWidth - lateralKeyGap
+Dim halfKeyWidth : halfKeyWidth = keyWidth * 0.5
 
-Private Function Pi()
-	Pi = 3.1415926535897932
-	Pi = CDbl( Pi )
+'Rotate a point counter-clockwise about the origin by specifying an angle (radians)
+Function rotate_2D_point_by_angle(ByVal inPoint, ByVal rotationAngle, ByRef outPoint)
+	Dim r, theta, inX, inY, inZ, outX, outY
+	inX = inPoint(0)
+	inY = inPoint(1)
+	inZ	= inPoint(2)
+	
+	Rhino.Print "rotate_2D_point_by_angle: inPoint = " & Rhino.Pt2Str(inPoint) & " rotationAngle = " & CStr(rotationAngle)
+
+	r = Sqr(inX*inX + inY*inY)
+	theta = Rhino.ATan2(inY, inX)
+	theta = theta + rotationAngle
+	outX = r * Cos(theta)
+	outY = r * Sin(theta)
+	outPoint = Array(outX, outY, inZ)
+
+	Rhino.Print "rotate_2D_point_by_angle: outPoint = " & Rhino.Pt2Str(outPoint)
+	
 End Function
 
-'Rotate a point counter-clockwise about the origin by specifying an angle
-Function Rotate2DPointByAngle(ByVal inX, ByVal inY, ByVal rotationAngle, ByRef outX, ByRef outY)
-Dim r
-Dim theta
-r = Sqr(inX*inX + inY*inY)
-theta = Atn(inY/inX)
-theta = theta + rotationAngle
-outX = r * Cos(theta)
-outY = r * Sin(theta)
-End Sub
+'Rotate a point counter-clockwise about the origin by specifying an distance (mm)
+Function rotate_2D_point_by_distance(ByVal inPoint, ByVal rotationDistance, ByRef outPoint)
+	Dim r, theta, rotationAngle, inX, inY, inZ, outX, outY
+	inX = inPoint(0)
+	inY = inPoint(1)
+	inZ	= inPoint(2)
 
-'Rotate a point counter-clockwise about the origin by specifying an angle (degrees)
-Function Rotate2DPointByDistance(ByVal inX, ByVal inY, ByVal rotationDistance, ByRef outX, ByRef outY)
-Dim r
-Dim theta
-Dim rotationAngle
-r = Sqr(inX*inX + inY*inY)
-theta = Atn(inY/inX)
-theta = theta + (rotationDistance / r) * (180 / Pi) 
-outX = r * Cos(theta)
-outY = r * Sin(theta)
-End Sub
+	Rhino.Print "rotate_2D_point_by_distance: inPoint = " & Rhino.Pt2Str(inPoint) & " rotationDistance = " & CStr(rotationDistance)
+	
+	r = Sqr(inX*inX + inY*inY)
+	theta = Rhino.ATan2(inY, inX)
+	theta = theta + (rotationDistance / r)
+	outX = r * Cos(theta)
+	outY = r * Sin(theta)
+	outPoint = Array(outX, outY, inZ)
+	
+	Rhino.Print "rotate_2D_point_by_distance: outPoint = " & Rhino.Pt2Str(outPoint)
+	
+End Function
 
 'Move a point radially away from the origin by a specified ammount
-Function Move2DPointRadially(ByVal inX, ByVal inY, ByVal radiationAmmount, ByRef outX, ByRef outY)
-Dim r
-Dim theta
-r = Sqr(inX*inX + inY*inY)
-r = r + radiationAmmount
-theta = Atn(inY/inX)
-outX = r * Cos(theta)
-outY = r * Sin(theta)
-End Sub
+Function move_2D_point_radially(ByVal inPoint, ByVal radiationAmmount, ByRef outPoint)
+	Dim r, theta, inX, inY, inZ, outX, outY
+	inX = inPoint(0)
+	inY = inPoint(1)
+	inZ	= inPoint(2)
 
-Call Main()
-Sub Main()
-
-' Compute the locations of the four corners of each key in the X-Y plane.
-' The axis of rotation of the key is taken as the origin. ( The completed key object can be moved later ).
-' Keys are defined to have flat tops, bottoms, and sides, with circular arcs for front and back faces.
-' Row indeces increase towards the back of the keyboard.
-ReDim arrTopFrontCornersX(intRowCount - 1)
-ReDim arrBottomFrontCornersX(intRowCount - 1)
-ReDim arrTopBackCornersX(intRowCount - 1)
-ReDim arrBottomBackCornersX(intRowCount - 1)
-ReDim arrTopFrontCornersY(intRowCount - 1)
-ReDim arrBottomFrontCornersY(intRowCount - 1)
-ReDim arrTopBackCornersY(intRowCount - 1)
-ReDim arrBottomBackCornersY(intRowCount - 1)
-
-'Compute the geometry for the first key row.
-arrTopFrontCornersX(0) = dblFirstKeyTopFrontX
-arrTopFrontCornersY(0) = dblFirstKeyTopFrontY
-arrTopBackCornersX(0) = dblFirstKeyTopFrontX - dblNominalKeyDepth
-arrTopBackCornersY(0) = dblFirstKeyTopFrontY
-
-arrBottomFrontCornersX(0) = arrTopFrontCornersX(0) 'Copy
-arrBottomFrontCornersY(0) = arrTopFrontCornersY(0)
-
-' Allow for key travel
-Rotate2DPointByAngle(arrTopFrontCornersX(0), arrTopFrontCornersY(0), dblKeyTravelAngle, arrTopFrontCornersX(0), arrTopFrontCornersY(0)) 
-
-'Allow for a ledge of the same height to the bezel as other keys have to the next row.
-Rotate2DPointByDistance(arrTopFrontCornersX(0), arrTopFrontCornersY(0), dblKeyTravelAngle, arrTopFrontCornersX(0), arrTopFrontCornersY(0))
-
-'Allow for our user-selectable additional height
-Rotate2DPointByDistance(arrTopFrontCornersX(0), arrTopFrontCornersY(0), dblDepressedKeyLedge, arrTopFrontCornersX(0), arrTopFrontCornersY(0))
-
-arrBottomBackCornersX(0) = arrTopBackCornersX(0)
-arrBottomBackCornersY(0) = arrTopBackCornersY(0)
-
-' The bottom back corner of the front key just has to be deep enough that the gap is not visible.
-Rotate2DPointByDistance(arrBottomBackCornersX(0), arrBottomBackCornersY(0), dblVisibilityDepth, arrBottomBackCornersX(0), arrBottomBackCornersY(0))
-
-'Iterate through the rest of the rows
-
+	Rhino.Print "move_2D_point_radially: inPoint = " & Rhino.Pt2Str(inPoint) & " radiationAmmount = " & CStr(radiationAmmount)
 	
+	r = Sqr(inX*inX + inY*inY)
+	r = r + radiationAmmount
+	theta = Rhino.ATan2(inY, inX)
+	outX = r * Cos(theta)
+	outY = r * Sin(theta)
+	outPoint = Array(outX, outY, inZ)
+
+	Rhino.Print "move_2D_point_radially: outPoint = " & Rhino.Pt2Str(outPoint)
+	
+End Function
+
+'Given two points on a line, and a circle centered at the origin, find the intersection closest to the first line point.
+'Will pop up a window with an error message if there is no intersection.
+' Note: this function works in the x-y plane only!
+Function intersect_line_with_circle(ByVal inPoint1, ByVal inPoint2, ByVal r, ByRef outPoint)
+	Rhino.Print "intersect_line_with_circle: inPoint1 = " & Rhino.Pt2Str(inPoint1) & " inPoint2 = " & Rhino.Pt2Str(inPoint2) & " r = " & CStr(r)
+	
+	Dim z, x1, x2, y1, y2, outX, outY, alpha1, alpha2, alpha, a, b, c, underRadical
+	x1 = inPoint1(0)
+	y1 = inPoint1(1)
+	z  = inPoint1(2)
+	x2 = inPoint2(0)
+	y2 = inPoint2(1)
+
+	' The coefficients for the quadratic in alpha
+	a = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)
+	b = 2 * x2 * (x1 - x2) + 2 * y2 * (y1 - y2)
+	c = x2*x2 + y2*y2 - r*r
+
+	underRadical = b*b - 4*a*c
+
+	If (underRadical <= 0) Then
+		Rhino.MessageBeep 
+		Rhino.TextOut "intersect_line_with_circle: Line does not appear to intersect the circle non-trivially!!"
+		Rhino.TextOut "underRadical = " & CStr(underRadical)
+	End If
+
+	alpha1 = (-b + Sqr(underRadical))/(2*a)
+	alpha2 = (-b - Sqr(underRadical))/(2*a)
+	
+	'Choose the alpha closest to one (which corresponds to the first point)
+	If ((alpha1 - 1)^2 < (alpha2 - 1)^2) Then
+		alpha = alpha1
+	Else
+		alpha = alpha2
+	End If
+	
+	outX = alpha * x1 + (1-alpha) * x2
+	outY = alpha * y1 + (1-alpha) * y2
+		
+	outPoint = Array(outX, outY, z)
+
+	Rhino.Print "intersect_line_with_circle: outPoint = " & Rhino.Pt2Str(outPoint)
+	
+End Function
+
+'Same as intersect_line_with_circle, but takes uses a point to define the circle instead of a radius.
+Function intersect_line_with_circle2(ByVal inPoint1, ByVal inPoint2, ByVal circlePoint, ByRef outPoint)
+
+	Rhino.Print "intersect_line_with_circle2: inPoint1 = " & Rhino.Pt2Str(inPoint1) & " inPoint2 = " & Rhino.Pt2Str(inPoint2) & " circlePoint = " & Rhino.Pt2Str(circlePoint)
+
+	Dim r, x, y
+	x = circlePoint(0)
+	y = circlePoint(1)
+	r = Sqr(x^2 + y^2)
+
+	Rhino.Print "intersect_line_with_circle2: outPoint = " & Rhino.Pt2Str(outPoint)
+
+	Call intersect_line_with_circle(inPoint1, inPoint2, r, outPoint)
+
+	Rhino.Print "intersect_line_with_circle2: outPoint = " & Rhino.Pt2Str(outPoint)
+
+End Function
+
+'Add an arc that goes through two points and will be centered at the origin (up to the precision of the passed points)
+'Arc will go through the two points up to the precision of Rhino's AddArc3Pt routine, even if they are not equidistant from the origin
+Function add_centered_arc(ByVal inPoint1, ByVal inPoint2)
+	Rhino.Print "add_centered_arc: inPoint1 = " & Rhino.Pt2Str(inPoint1) & " inPoint2 = " & Rhino.Pt2Str(inPoint2)
+	Dim intermediatePoint, theta, r, r1, r2, midPoint
+	
+	theta = Rhino.ATan2(inPoint1(1) + inPoint2(1), inPoint1(0) + inPoint2(0) )  ' The sum of the two points will almost give a good angle for a point in the middle of the arc.
+
+	' Use the average radius of the two points.
+	r1 = Sqr(inPoint1(0)^2 + inPoint1(1)^2)
+	r2 = Sqr(inPoint2(0)^2 + inPoint2(1)^2)
+	r = (r1 + r2) * 0.5
+
+	midPoint = Array( r * Cos(theta),  r * Sin(theta), 0.0 )		
+
+	add_centered_arc = Rhino.AddArc3Pt (inPoint1, inPoint2, midPoint)
+
+End Function
+
+	Call Main()
+Sub Main()
+	'____________________________________________________________________________________________
+	' Compute the locations of the four corners of each key in the X-Y plane.
+	' The axis of rotation of the key is taken as the origin. ( The completed key object can be moved later ).
+	' Keys are defined to have flat tops, bottoms, and sides, with circular arcs for front and back faces.
+	' Row indeces increase towards the back of the keyboard.
+	Rhino.Print "Welcome to the diykeyboard.org key generation script"
+	Rhino.Print "Starting Main..."
+
+	'Turn off rendering temporarily to speed things up.
+	Rhino.EnableRedraw(False)
+	
+	Rhino.Print "Deleting everything in the document so we can start from scratch..."
+	If Not IsNull(Rhino.AllObjects) Then
+		Rhino.DeleteObjects(Rhino.AllObjects)
+	End If
+	
+	ReDim topFrontCorners(rowCount - 1)
+	ReDim bottomFrontCorners(rowCount - 1)
+	ReDim topBackCorners(rowCount - 1)
+	ReDim bottomBackCorners(rowCount - 1)
+
+	'Compute the geometry for the first key row.
+
+	topFrontCorners(0) = Array(firstKeyTopFrontX, firstKeyTopFrontY, 0.0)
+	topBackCorners(0) = Array(firstKeyTopFrontX - nominalKeyDepth, firstKeyTopFrontY, 0.0)
+
+	bottomFrontCorners(0) = topFrontCorners(0) 'Copy
+
+	' Allow for key travel	
+	Call rotate_2D_point_by_angle(bottomFrontCorners(0), -1.0 * KeyTravelAngle, bottomFrontCorners(0))
+
+	'Allow for a ledge of the same height to the bezel as other keys have to the next row.
+	Call rotate_2D_point_by_distance(bottomFrontCorners(0), -1.0 * depressedKeyLedge, bottomFrontCorners(0))
+
+	'Allow for our user-selectable additional height
+	Call rotate_2D_point_by_distance(bottomFrontCorners(0), -1.0 * frontRowVisibilityDepth, bottomFrontCorners(0))
+
+	bottomBackCorners(0) = topBackCorners(0) ' Copy
+	' The bottom back corner of the front key just has to be deep enough that the gap is not visible.
+	Call rotate_2D_point_by_distance(bottomBackCorners(0), -1.0 * visibilityDepth, bottomBackCorners(0))
+
+	'Iterate through the rest of the rows, generating geometry
+	Dim rowIndex, r
+	Dim topFrontCorner, bottomFrontCorner, topBackCorner, bottomBackCorner
+	Dim lastTopFrontCorner, lastBottomFrontCorner, lastTopBackCorner, lastBottomBackCorner
+
+	For rowIndex = 2 To rowCount
+
+		'Make the previous four points more accessible.
+		lastTopFrontCorner = topFrontCorners(rowIndex - 2)
+		lastBottomFrontCorner = bottomFrontCorners(rowIndex - 2)
+		lastTopBackCorner = topBackCorners(rowIndex - 2)
+		lastBottomBackCorner = bottomBackCorners(rowIndex - 2)
+
+		'topFrontCorner
+		Call move_2D_point_radially(lastTopBackCorner, 	-1.0 * radialKeyGap, topFrontCorner)  ' A point on the front surface of the next key.
+		Call intersect_line_with_circle2(lastTopBackCorner, lastTopFrontCorner, topFrontCorner, topFrontCorner) ' A point at the right radius, directly behing the last key.
+		Call rotate_2D_point_by_distance(topFrontCorner, depressedKeyLedge, topFrontCorner)
+		Call rotate_2D_point_by_angle(topFrontCorner, keyTravelAngle, topFrontCorner)
+
+		'topBackCorner
+		topBackCorner = topFrontCorner
+		topBackCorner(0) = topBackCorner(0) - nominalKeyDepth
+		
+		'bottomBackCorner
+		Call rotate_2D_point_by_distance(topBackCorner, -1.0 * visibilityDepth, bottomBackCorner)
+		
+		'bottomFrontCorner
+		Call move_2D_point_radially(lastBottomBackCorner, -1.0 * radialKeyGap * 0.5, bottomFrontCorner) ' A point halfway into the key gap
+		Call intersect_line_with_circle2(lastBottomBackCorner, lastBottomFrontCorner, bottomFrontCorner, bottomFrontCorner)  ' A point halfway in the key gap in line with the last key bottom 
+		Call intersect_line_with_circle2(bottomFrontCorner, bottomBackCorner, topFrontCorner, bottomFrontCorner)  ' Now the bottoms of adjacent keys will intersect halfway through the gap.  Smooth!
+
+		topFrontCorners(rowIndex - 1) = topFrontCorner
+		bottomFrontCorners(rowIndex - 1) = bottomFrontCorner
+		topBackCorners(rowIndex - 1) = topBackCorner
+		bottomBackCorners(rowIndex - 1) = bottomBackCorner
+
+	Next
+
+	Rhino.Print "Done Computing geometry..."	
+
+	'____________________________________________________________________________________________
+	'Use the previously generated geometry to render some keys.
+	Dim fourCorners, touchpointCurve, touchpointSurface, frontArc, backArc, topCurve, bottomCurve
+	Dim extrudeCurve, touchpointExtrusion, tempArray
+	For rowIndex = 1 To rowCount
+
+		topFrontCorner = topFrontCorners(rowIndex - 1)
+		bottomFrontCorner = bottomFrontCorners(rowIndex - 1)
+		topBackCorner = topBackCorners(rowIndex - 1)
+		bottomBackCorner = bottomBackCorners(rowIndex - 1)
+		'fourCorners = Array(topFrontCorner, bottomFrontCorner, bottomBackCorner, topBackCorner, topFrontCorner) ' Clockwise from the top front corner
+
+		'Draw as a box for now.
+		'		touchpointCurve = Rhino.AddPolyline(fourCorners)
+
+		'Draw the four bounding curves for the current touchpoint profile.
+		topCurve = Rhino.AddLine(topFrontCorner, topBackCorner)
+		bottomCurve = Rhino.AddLine(bottomFrontCorner, bottomBackCorner)
+		frontArc = add_centered_arc(topFrontCorner, bottomFrontCorner)
+		backArc = add_centered_arc(topBackCorner, bottomBackCorner)
+
+		tempArray = Rhino.AddPlanarSrf(Array(topCurve, bottomCurve, frontArc, backArc))
+		touchpointSurface = tempArray(0)
+		
+		Rhino.Print "Fuck!!!"
+		Rhino.Print "is touchPointSurface an object? " & Rhino.IsObject(touchpointSurface)
+		Rhino.Print "Double Fuck!!!"
+		
+		
+		'Create a curve for the extrusion
+		
+		Rhino.Print Rhino.Pt2Str(Array(0.0, 0.0, -1.0 * halfKeyWidth))
+		Rhino.Print Rhino.Pt2Str(Array(0.0, 0.0, halfKeyWidth))
+		
+		extrudeCurve = Rhino.AddLine(Array(0.0, 0.0, -1.0 * halfKeyWidth), Array(0.0, 0.0, halfKeyWidth))
+		'extrudeCurve = extrudeCurve(0)
+
+		Rhino.Print "is extrudeCurve null? " & IsNull(extrudeCurve)
+
+
+		Rhino.Print "Fuuuuuuck!!!"
+		Rhino.Print "is extrudeCurve an object? " & Rhino.IsObject(extrudeCurve)
+		Rhino.Print "Fuckkkkkkkkkkk!!!"
+
+		
+		'Perform the extrusion to get our box.
+		touchpointExtrusion = Rhino.ExtrudeSurface(touchpointSurface, extrudeCurve)
+		
+
+	Next
+	
+	Rhino.Print "Model is ready for display..."
+	'Turn rendering back on.
+	Call Rhino.ZoomExtents(Rhino.CurrentView,True) ' Zoom all views to object extents
+	'Set the rendering mode to shaded
+	Dim arrViews, strView
+	arrViews = Rhino.ViewNames
+	If IsArray(arrViews) Then
+		For Each strView In arrViews
+			Rhino.ViewDisplayMode strView, 1
+		Next
+	End If
+
+	Call Rhino.EnableRedraw(True)
+	
+	Rhino.Print "Got to the end of Main!"
 End Sub
