@@ -2,28 +2,58 @@
 
 ' Global Variables	
 
-Dim goldenRatio : goldenRatio = (1.0 + Sqr(5.0))/2.0 ' About 1.618, a visually pleasing ratio
-
-'Major Parameters.  Stuff that defines the basic geometry of the keys.
-Dim rowCount : rowCount = 5 '  The total number of rows.
+'______________________'Major Parameters.  Stuff that defines the basic geometry of the keys. ______________________
+Dim rowCount : rowCount = 6 '  The total number of rows.
 Dim octaveSpacing : octaveSpacing = 167.0 'mm  The center-to-center span of an octave.  170mm is Yamaha 5-7 spacing.
 Dim nominalKeyWidth : nominalKeyWidth = octaveSpacing / 6.0 'mm  The Width of a key, including a key's worth of gap between keys
-'Dim nominalKeyDepth : nominalKeyDepth = goldenRatio * nominalKeyWidth 'mm  The Depth of a key, not counting the gap between keys
 Dim nominalKeyDepth : nominalKeyDepth = 25.0 'mm  The Depth of a key, not counting the gap between keys
 Dim keyTravelAngle : keyTravelAngle = 4.0 * Rhino.Pi / 180.0 'radians  The angle the key travels through before bottoming out.
 Dim depressedKeyLedge : depressedKeyLedge = 1.0 'mm.  The approximate height difference between the front of a depressed key and the next un-depressed key row.  Affects the ergonomics of chord slides.
-Dim firstKeyTopFrontX : firstKeyTopFrontX = 250.0 'mm.  The location of the lowest (frontmost) key corner.
-Dim firstKeyTopFrontY : firstKeyTopFrontY = 5.0 'mm.  The location of the lowest (frontmost) key corner.
+Dim firstKeyTopFrontX : firstKeyTopFrontX = 300.0 'mm.  The location of the lowest (frontmost) key corner.
+Dim firstKeyTopFrontY : firstKeyTopFrontY = -10.0 'mm.  The location of the lowest (frontmost) key corner.
 
-'Minor Parameters.  Stuff that doesn't really affect the ergonomics of the piano.
+'______________________ Minor Parameters.  Stuff that doesn't really affect the ergonomics of the piano. ___________________________
 Dim radialKeyGap : radialKeyGap = 2.0 'mm  The gap between keys expressed as a change of Radius.
 Dim lateralKeyGap : lateralKeyGap = 2.0 'mm The sideways gab between keys
-Dim filletRadius : filletRadius = 1.0 'mm  The radius of the fillet on most key surfaces.
+Dim angularKeyGap : angularKeyGap = 3.0 'mm The gap between the touchpoint and the next key body when depressed.
+'Dim filletRadius : filletRadius = 1.0 'mm  The radius of the fillet on most key surfaces.
 Dim visibilityDepth : visibilityDepth = 20.0 'mm Approximately how far keys extend below the next lower row when lower row is depressed.
 Dim frontRowVisibilityDepth : frontRowVisibilityDepth = 30.0 'mm  Like VisibilityDepth, but can be set appropriately for the front bezel.
 
-Dim keyWidth : keyWidth = nominalKeyWidth - lateralKeyGap
+Dim frontKeySupportThickness : frontKeySupportThickness = 15.0 'mm The height of the narrow part of the support for the front (odd numbered) keys. 
+
+Dim guideFeltThickness : guideFeltThickness = 4.0 ' The thickness of the felt that stabilizes the keys.
+Dim upperStopFeltThickness : upperStopFeltThickness = 4.0 ' The theckness of the felt that stops the keys at the top of key travel.
+Dim lowerStopFeltThickness : lowerStopFeltThickness = 6.0 ' The theckness of the felt that stops the keys at the bottom of key travel.
+Dim tineToTrackRatio : tineToTrackRatio = 0.4 ' The ratio between the key guide tine thickness and the guide track thickness.
+Dim guideSupportDepth : guideSupportDepth = 8.0 ' mm The radial depth of the key body width support for the track.  
+
+'______________________ Derived Parameters.  Stuff that is computed from the major and minor parameters. ___________________________
+
+Dim keyBodyWidth : keyBodyWidth = nominalKeyWidth * 0.5 - lateralKeyGap ' The width between keys at the key body.
+Dim halfKeyBodyWidth : halfKeyBodyWidth = keyBodyWidth * 0.5
+Dim keyGuideTrackWidth : keyGuideTrackWidth = (nominalKeyWidth * 0.5 - 2 * guideFeltThickness) * tineToTrackRatio ' Width of the guide track on the key.
+Dim keyGuideTineWidth : keyGuideTineWidth = (nominalKeyWidth * 0.5 - 2 * guideFeltThickness) * (1 - tineToTrackRatio) ' Width of the tine on the (stationary) key guide.
+
+Dim keyWidth : keyWidth = nominalKeyWidth - lateralKeyGap  ' The width of the touchpoint part of the key
 Dim halfKeyWidth : halfKeyWidth = keyWidth * 0.5
+
+'______________________ Helper Functions ______________________
+
+' Check if a number is even or odd.
+Function is_even(number)
+	is_even = Not CBool(number Mod 2)
+End Function
+Function is_odd(number)
+	is_odd = CBool(number Mod 2)
+End Function
+
+'Add an element to an array.  (The array must be resizable.)
+Function add_element_to_array(ByRef inArray, ByVal newElement)
+	Dim elementCount : elementCount = UBound(inArray)+1
+	ReDim Preserve inArray(elementCount)
+	inArray(elementCount) = newElement
+End Function
 
 'Rotate a point counter-clockwise about the origin by specifying an angle (radians)
 Function rotate_2D_point_by_angle(ByVal inPoint, ByVal rotationAngle, ByRef outPoint)
@@ -167,6 +197,21 @@ Function add_centered_arc(ByVal inPoint1, ByVal inPoint2)
 
 End Function
 
+'Take an array of curves and extrude them into an object symmetrically along the z-axis by a specified total width.
+'Deletes the array of curve objects to reduce clutter.
+Function extrude_curve_along_z(ByRef curveArray, ByVal width)
+	Dim tempSurface, tempSurface2, extrudeCurve, extrusion
+	tempSurface = Rhino.AddPlanarSrf(curveArray)
+	tempSurface2 = tempSurface(0)
+	extrudeCurve = Rhino.AddLine(Array(0.0,0.0,0.0), Array(0.0,0.0,width))
+	extrusion = Rhino.ExtrudeSurface(tempSurface2, extrudeCurve)
+	Call Rhino.MoveObject(extrusion, Array(0.0,0.0,0.0), Array(0.0,0.0, width * -0.5))
+	Call Rhino.DeleteObject(extrudeCurve)
+	Call Rhino.DeleteObject(tempSurface2)
+	Call Rhino.DeleteObjects(curveArray)
+	extrude_curve_along_z = extrusion
+End Function
+
 	Call Main()
 Sub Main()
 	'____________________________________________________________________________________________
@@ -248,22 +293,18 @@ Sub Main()
 
 	Next
 
-	Rhino.Print "Done Computing geometry..."	
+	Rhino.Print "Done Computing Touchpoint geometry..."	
 
 	'____________________________________________________________________________________________
-	'Use the previously generated geometry to render some keys.
-	Dim fourCorners, touchpointCurve, touchpointSurface, frontArc, backArc, topCurve, bottomCurve
-	Dim extrudeCurve, touchpointExtrusion, tempArray
+	'Use the previously generated geometry to render the touchpoints.
+	Dim frontArc, backArc, topCurve, bottomCurve
+	ReDim touchpointArray(rowCount-1)
 	For rowIndex = 1 To rowCount
 
 		topFrontCorner = topFrontCorners(rowIndex - 1)
 		bottomFrontCorner = bottomFrontCorners(rowIndex - 1)
 		topBackCorner = topBackCorners(rowIndex - 1)
 		bottomBackCorner = bottomBackCorners(rowIndex - 1)
-		'fourCorners = Array(topFrontCorner, bottomFrontCorner, bottomBackCorner, topBackCorner, topFrontCorner) ' Clockwise from the top front corner
-
-		'Draw as a box for now.
-		'		touchpointCurve = Rhino.AddPolyline(fourCorners)
 
 		'Draw the four bounding curves for the current touchpoint profile.
 		topCurve = Rhino.AddLine(topFrontCorner, topBackCorner)
@@ -271,36 +312,194 @@ Sub Main()
 		frontArc = add_centered_arc(topFrontCorner, bottomFrontCorner)
 		backArc = add_centered_arc(topBackCorner, bottomBackCorner)
 
-		tempArray = Rhino.AddPlanarSrf(Array(topCurve, bottomCurve, frontArc, backArc))
-		touchpointSurface = tempArray(0)
-		
-		Rhino.Print "Fuck!!!"
-		Rhino.Print "is touchPointSurface an object? " & Rhino.IsObject(touchpointSurface)
-		Rhino.Print "Double Fuck!!!"
-		
-		
-		'Create a curve for the extrusion
-		
-		Rhino.Print Rhino.Pt2Str(Array(0.0, 0.0, -1.0 * halfKeyWidth))
-		Rhino.Print Rhino.Pt2Str(Array(0.0, 0.0, halfKeyWidth))
-		
-		extrudeCurve = Rhino.AddLine(Array(0.0, 0.0, -1.0 * halfKeyWidth), Array(0.0, 0.0, halfKeyWidth))
-		'extrudeCurve = extrudeCurve(0)
-
-		Rhino.Print "is extrudeCurve null? " & IsNull(extrudeCurve)
-
-
-		Rhino.Print "Fuuuuuuck!!!"
-		Rhino.Print "is extrudeCurve an object? " & Rhino.IsObject(extrudeCurve)
-		Rhino.Print "Fuckkkkkkkkkkk!!!"
-
-		
 		'Perform the extrusion to get our box.
-		touchpointExtrusion = Rhino.ExtrudeSurface(touchpointSurface, extrudeCurve)
-		
+		Dim touchpointExtrusion : touchpointExtrusion = extrude_curve_along_z(Array(topCurve, bottomCurve, frontArc, backArc), keyWidth)
+		touchpointArray(rowIndex-1) = touchpointExtrusion
 
 	Next
 	
+	Rhino.Print "Done computing an array of aligned touchpoints!"
+
+	'____________________________________________________________________________________________
+	' Draw the key bodies for the even and odd row keys.  Assume that the leftmost key has odd numbered touchpoints (still counting from the bottom)
+
+	Rhino.Print "Starting to compute the geometry for the key bodies..."
+	Dim oddRowCount, evenRowCount
+	If is_odd(rowCount) Then 'odd number of rows 
+		oddRowCount = (rowCount+1) / 2
+		evenRowCount = oddRowCount - 1
+	Else
+		oddRowCount = rowCount / 2
+		evenRowCount = rowCount / 2
+	End If
+	ReDim oddSupportsCurves(0), evenSupportsCurves(0)	
+
+	Dim tempPoint1, tempPoint2, tempPoint3, tempPoint4, tempPoint5, tempPoint6
+	Dim originPoint : originPoint = Array(0.0,0.0,0.0)
+	
+	' Define the point where the supports part of the body curve starts.
+	Rhino.Print "Defining the point where the supports part of the body curve starts..."
+	Dim supportCurveStartPoint, supportCurveEndPoint
+	Call rotate_2D_point_by_angle(bottomFrontCorners(1), -1.0 * keyTravelAngle, supportCurveStartPoint)
+	Call rotate_2D_point_by_distance(supportCurveStartPoint, -1.0 * angularKeyGap - frontKeySupportThickness, supportCurveStartPoint)
+
+	' Draw the part of the body that mates with the first and second row supports. (Which is an oddly shaped support for the first row, odd keys).
+	Rhino.Print "Drawing an oddly shaped support for the first row, odd keys..."
+	Call rotate_2D_point_by_angle(bottomFrontCorners(0), -1.0 * keyTravelAngle, tempPoint1) 
+	Call rotate_2D_point_by_distance(tempPoint1, -1.0 * angularKeyGap, tempPoint1) ' tempPoint1 is now the bottom-frontmost point of the support.
+	oddSupportsCurves(0) = Rhino.AddLine(supportCurveStartPoint, tempPoint1) 
+
+	Call rotate_2D_point_by_angle(bottomFrontCorners(1), -1.0 * keyTravelAngle, tempPoint1)
+	Call rotate_2D_point_by_distance(tempPoint1, -1.0 * angularKeyGap, tempPoint1)
+
+	evenSupportsCurves(0) = add_centered_arc(supportCurveStartPoint, tempPoint1)
+
+	' Draw the normal supports.
+	Rhino.Print "Starting to draw the normal touchpoint supports..."
+	For rowIndex = 1 To (rowCount - 2)
+
+		Call rotate_2D_point_by_angle(bottomFrontCorners(rowIndex - 1), -1.0 * keyTravelAngle, tempPoint1)
+		Call rotate_2D_point_by_distance(tempPoint1, -1.0 * angularKeyGap, tempPoint1)	
+		Call rotate_2D_point_by_angle(bottomBackCorners(rowIndex - 1), -1.0 * keyTravelAngle, tempPoint2)			
+		Call rotate_2D_point_by_distance(tempPoint2, -1.0 * angularKeyGap, tempPoint2)	
+		Call rotate_2D_point_by_angle(bottomFrontCorners(rowIndex), -1.0 * keyTravelAngle, tempPoint3)			
+		Call rotate_2D_point_by_distance(tempPoint3, -1.0 * angularKeyGap, tempPoint3)	
+		Call rotate_2D_point_by_angle(bottomBackCorners(rowIndex), -1.0 * keyTravelAngle, tempPoint4)			
+		Call rotate_2D_point_by_distance(tempPoint4, -1.0 * angularKeyGap, tempPoint4)	
+		Call rotate_2D_point_by_angle(bottomFrontCorners(rowIndex+1), -1.0 * keyTravelAngle, tempPoint5)			
+		Call rotate_2D_point_by_distance(tempPoint5, -1.0 * angularKeyGap, tempPoint5)	
+
+		If is_odd(rowIndex) Then
+			Call add_element_to_array(oddSupportsCurves, add_centered_arc(tempPoint1, bottomFrontCorners(rowIndex - 1)))
+			Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(bottomFrontCorners(rowIndex - 1), bottomBackCorners(rowIndex - 1)))
+			Call add_element_to_array(oddSupportsCurves, add_centered_arc(bottomBackCorners(rowIndex - 1), tempPoint2))
+			Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(tempPoint2, tempPoint3))
+			Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(tempPoint3, tempPoint4))
+			Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(tempPoint4, tempPoint5))
+
+		Else
+			Call add_element_to_array(evenSupportsCurves, add_centered_arc(tempPoint1, bottomFrontCorners(rowIndex - 1)))
+			Call add_element_to_array(evenSupportsCurves, Rhino.AddLine(bottomFrontCorners(rowIndex - 1), bottomBackCorners(rowIndex - 1)))
+			Call add_element_to_array(evenSupportsCurves, add_centered_arc(bottomBackCorners(rowIndex - 1), tempPoint2))
+			Call add_element_to_array(evenSupportsCurves, Rhino.AddLine(tempPoint2, tempPoint3))
+			Call add_element_to_array(evenSupportsCurves, Rhino.AddLine(tempPoint3, tempPoint4))
+			Call add_element_to_array(evenSupportsCurves, Rhino.AddLine(tempPoint4, tempPoint5))
+		End If
+
+	Next
+
+	' Compute the geometry of the last couple rows.
+	Rhino.Print "Starting to draw the touchpoint supports for the last couple rows..." 
+
+	' The second to last row starts the same as the other rows, but misses the last little line.
+	rowIndex = rowCount - 1
+	Call rotate_2D_point_by_angle(bottomFrontCorners(rowIndex - 1), -1.0 * keyTravelAngle, tempPoint1)
+	Call rotate_2D_point_by_distance(tempPoint1, -1.0 * angularKeyGap, tempPoint1)	
+	Call rotate_2D_point_by_angle(bottomBackCorners(rowIndex - 1), -1.0 * keyTravelAngle, tempPoint2)			
+	Call rotate_2D_point_by_distance(tempPoint2, -1.0 * angularKeyGap, tempPoint2)	
+	Call rotate_2D_point_by_angle(bottomFrontCorners(rowIndex), -1.0 * keyTravelAngle, tempPoint3)			
+	Call rotate_2D_point_by_distance(tempPoint3, -1.0 * angularKeyGap, tempPoint3)	
+	'	Call rotate_2D_point_by_angle(bottomBackCorners(rowIndex), -1.0 * keyTravelAngle, tempPoint4)			
+	'	Call rotate_2D_point_by_distance(tempPoint4, -1.0 * angularKeyGap, tempPoint4)	
+	If is_odd(rowIndex) Then
+		Call add_element_to_array(oddSupportsCurves, add_centered_arc(tempPoint1, bottomFrontCorners(rowIndex - 1)))
+		Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(bottomFrontCorners(rowIndex - 1), bottomBackCorners(rowIndex - 1)))
+		Call add_element_to_array(oddSupportsCurves, add_centered_arc(bottomBackCorners(rowIndex - 1), tempPoint2))
+		Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(tempPoint2, tempPoint3))
+		'		Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(tempPoint3, tempPoint4))
+	Else
+		Call add_element_to_array(evenSupportsCurves, add_centered_arc(tempPoint1, bottomFrontCorners(rowIndex - 1)))
+		Call add_element_to_array(evenSupportsCurves, Rhino.AddLine(bottomFrontCorners(rowIndex - 1), bottomBackCorners(rowIndex - 1)))
+		Call add_element_to_array(evenSupportsCurves, add_centered_arc(bottomBackCorners(rowIndex - 1), tempPoint2))
+		Call add_element_to_array(evenSupportsCurves, Rhino.AddLine(tempPoint2, tempPoint3))
+		'		Call add_element_to_array(evenSupportsCurves, Rhino.AddLine(tempPoint3, tempPoint4))
+	End If
+
+	'Some geometry for the last bits of the last two rows
+	rowIndex = rowCount
+	Call rotate_2D_point_by_angle(bottomFrontCorners(rowIndex - 1), -1.0 * keyTravelAngle, tempPoint1)
+	Call rotate_2D_point_by_distance(tempPoint1, -1.0 * angularKeyGap, tempPoint1)	
+
+	Call rotate_2D_point_by_angle(bottomBackCorners(rowIndex - 1), -1.0 * keyTravelAngle, tempPoint2)			
+	Call rotate_2D_point_by_distance(tempPoint2, -1.0 * angularKeyGap, tempPoint2)	
+
+	Call move_2D_point_radially(tempPoint2, -1.0 * radialKeyGap, tempPoint3) ' Get a point with radius of tempPoint3.
+	Call intersect_line_with_circle2(tempPoint1, tempPoint2, tempPoint3, tempPoint3) ' Move it in line with tempPoint1, tempPoint2, preserving radius
+
+	Call move_2D_point_radially(topBackCorners(rowIndex - 1), -1.0 * radialKeyGap, tempPoint4)
+	Call move_2D_point_radially(topBackCorners(rowIndex - 1), -1.0 * radialKeyGap - guideSupportDepth, tempPoint5)
+
+	Call rotate_2D_point_by_angle(tempPoint5, -1.0 * keyTravelAngle, tempPoint6)			
+	Call rotate_2D_point_by_distance(tempPoint6, -1.0 * angularKeyGap, tempPoint6)	
+	
+	If is_odd(rowCount) Then ' If odd number of rows, the second-to-last row is even.
+
+		' Draw the extra bit of support for the second-to-last row.  It has a small un-supported-looking sliver.
+		Call add_element_to_array(evenSupportsCurves, Rhino.AddLine(tempPoint1, tempPoint3))
+		Call add_element_to_array(evenSupportsCurves, add_centered_arc(tempPoint3, tempPoint4))
+		Call add_element_to_array(evenSupportsCurves, Rhino.AddLine(tempPoint4, tempPoint5))
+		Call add_element_to_array(evenSupportsCurves, add_centered_arc(tempPoint5, tempPoint6))
+
+		' Draw the weird support for the last row.  The little body-width sliver is supported.
+		Call add_element_to_array(oddSupportsCurves, add_centered_arc(tempPoint1, bottomFrontCorners(rowCount - 1)))
+		Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(bottomFrontCorners(rowCount - 1), bottomBackCorners(rowCount - 1)))
+		Call add_element_to_array(oddSupportsCurves, add_centered_arc(bottomBackCorners(rowCount - 1), topBackCorners(rowCount - 1)))
+		Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(topBackCorners(rowCount - 1), tempPoint5))
+		Call add_element_to_array(oddSupportsCurves, add_centered_arc(tempPoint5, tempPoint6))
+
+	Else
+		' Draw the extra bit of support for the second-to-last row.  It has a small un-supported-looking sliver.
+		Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(tempPoint1, tempPoint3))
+		Call add_element_to_array(oddSupportsCurves, add_centered_arc(tempPoint3, tempPoint4))
+		Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(tempPoint4, tempPoint5))
+		Call add_element_to_array(oddSupportsCurves, add_centered_arc(tempPoint5, tempPoint6))
+
+		' Draw the weird support for the last row.  The little body-width sliver is supported.
+		Call add_element_to_array(evenSupportsCurves, add_centered_arc(tempPoint1, bottomFrontCorners(rowCount - 1)))
+		Call add_element_to_array(evenSupportsCurves, Rhino.AddLine(bottomFrontCorners(rowCount - 1), bottomBackCorners(rowCount - 1)))
+		Call add_element_to_array(evenSupportsCurves, add_centered_arc(bottomBackCorners(rowCount - 1), topBackCorners(rowCount - 1)))
+		Call add_element_to_array(evenSupportsCurves, Rhino.AddLine(topBackCorners(rowCount - 1), tempPoint5))
+		Call add_element_to_array(evenSupportsCurves, add_centered_arc(tempPoint5, tempPoint6))
+
+	End If
+	supportCurveEndPoint = tempPoint6
+
+	' Complete the key body curve.
+	Rhino.Print "Completing the curves for the key bodies..."
+	Dim oddKeyBodyCurves : oddKeyBodyCurves = oddSupportsCurves
+	Dim evenKeyBodyCurves : evenKeyBodyCurves = evenSupportsCurves
+
+	'Placeholder:  Just connect start and end to the originwith a line.
+	Call add_element_to_array(oddKeyBodyCurves, Rhino.AddLine(supportCurveEndPoint, originPoint))
+	Call add_element_to_array(oddKeyBodyCurves, Rhino.AddLine(originPoint, supportCurveStartPoint))
+	Call add_element_to_array(evenKeyBodyCurves, Rhino.AddLine(supportCurveEndPoint, originPoint))
+	Call add_element_to_array(evenKeyBodyCurves, Rhino.AddLine(originPoint, supportCurveStartPoint))
+	
+	' Extrude the key bodies out into 3D
+	Dim oddKeyBodyExtrusion : oddKeyBodyExtrusion = extrude_curve_along_z(oddKeyBodyCurves, keyBodyWidth)		
+	Dim evenKeyBodyExtrusion : evenKeyBodyExtrusion = extrude_curve_along_z(evenKeyBodyCurves, keyBodyWidth)		
+
+	' Union the odd and even key tops with their respective key bodies
+	Dim evenKeySolid, oddKeySolid
+	oddKeySolid = oddKeyBodyExtrusion
+	evenKeySolid = evenKeyBodyExtrusion
+	Dim tempArray
+	For rowIndex = 1 To rowCount
+		If is_even(rowIndex) Then			
+			tempArray = Rhino.BooleanUnion(Array(touchpointArray(rowIndex-1), evenKeySolid))
+			evenKeySolid = tempArray(0)			
+		Else
+			tempArray = Rhino.BooleanUnion(Array(touchpointArray(rowIndex-1), oddKeySolid))
+			oddKeySolid = tempArray(0)			
+		End If
+	Next
+
+	' Move the even key out one nominal key spacing.
+	Call Rhino.MoveObject(evenKeySolid, Array(0.0,0.0,0.0), Array(0.0,0.0,nominalKeyWidth * 0.5))
+
+	'____________________________________________________________________________________________
+	' Go ahead and render everything
+
 	Rhino.Print "Model is ready for display..."
 	'Turn rendering back on.
 	Call Rhino.ZoomExtents(Rhino.CurrentView,True) ' Zoom all views to object extents
