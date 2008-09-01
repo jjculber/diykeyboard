@@ -1,0 +1,14 @@
+﻿'Script to test if library inclusion works as expected.
+Option Explicit
+
+Dim testLibraryLoaded : testLibraryLoaded = 0
+
+Rhino.Command("-LoadScript " & Rhino.WorkingFolder & "\libraries\test_library.rvb" )
+
+Rhino.Print("testLibraryLoaded = " & CStr(testLibraryLoaded) & " (should be 1)" )
+
+Rhino.Print("Trying to call a function defined in test_library.rvb")
+
+Dim tempAnswer: tempAnswer = 0.0
+tempAnswer = double_number(2.0)
+Rhino.Print("tempAnswer = " & CStr(tempAnswer) & " (should be 4)")

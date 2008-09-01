@@ -1,218 +1,12 @@
-﻿Option Explicit
+﻿' Run this file to generate a CAD model of a Janko layout keyboard with rotary keys.
+Option Explicit
 
-' Global Variables	
+' Load in necerrary libraries and user-defined keyboard parameters.
+Rhino.Command("-LoadScript " & Rhino.WorkingFolder & "\libraries\misc.rvb" )
+Rhino.Command("-LoadScript " & Rhino.WorkingFolder & "\libraries\geometry.rvb" )
+Rhino.Command("-LoadScript " & Rhino.WorkingFolder & "\parameters\six_key_rotary.rvb" )
 
-'______________________'Major Parameters.  Stuff that defines the basic geometry of the keys. ______________________
-Dim rowCount : rowCount = 6 '  The total number of rows.
-Dim octaveSpacing : octaveSpacing = 167.0 'mm  The center-to-center span of an octave.  170mm is Yamaha 5-7 spacing.
-Dim nominalKeyWidth : nominalKeyWidth = octaveSpacing / 6.0 'mm  The Width of a key, including a key's worth of gap between keys
-Dim nominalKeyDepth : nominalKeyDepth = 25.0 'mm  The Depth of a key, not counting the gap between keys
-Dim keyTravelAngle : keyTravelAngle = 4.0 * Rhino.Pi / 180.0 'radians  The angle the key travels through before bottoming out.
-Dim depressedKeyLedge : depressedKeyLedge = 1.0 'mm.  The approximate height difference between the front of a depressed key and the next un-depressed key row.  Affects the ergonomics of chord slides.
-Dim firstKeyTopFrontX : firstKeyTopFrontX = 300.0 'mm.  The location of the lowest (frontmost) key corner.
-Dim firstKeyTopFrontY : firstKeyTopFrontY = -10.0 'mm.  The location of the lowest (frontmost) key corner.
-
-'______________________ Minor Parameters.  Stuff that doesn't really affect the ergonomics of the piano. ___________________________
-Dim radialKeyGap : radialKeyGap = 2.0 'mm  The gap between keys expressed as a change of Radius.
-Dim lateralKeyGap : lateralKeyGap = 2.0 'mm The sideways gab between keys
-Dim angularKeyGap : angularKeyGap = 3.0 'mm The gap between the touchpoint and the next key body when depressed.
-'Dim filletRadius : filletRadius = 1.0 'mm  The radius of the fillet on most key surfaces.
-Dim visibilityDepth : visibilityDepth = 20.0 'mm Approximately how far keys extend below the next lower row when lower row is depressed.
-Dim frontRowVisibilityDepth : frontRowVisibilityDepth = 30.0 'mm  Like VisibilityDepth, but can be set appropriately for the front bezel.
-
-Dim frontKeySupportThickness : frontKeySupportThickness = 15.0 'mm The height of the narrow part of the support for the front (odd numbered) keys. 
-
-Dim guideFeltThickness : guideFeltThickness = 4.0 ' The thickness of the felt that stabilizes the keys.
-Dim upperStopFeltThickness : upperStopFeltThickness = 4.0 ' The theckness of the felt that stops the keys at the top of key travel.
-Dim lowerStopFeltThickness : lowerStopFeltThickness = 6.0 ' The theckness of the felt that stops the keys at the bottom of key travel.
-Dim tineToTrackRatio : tineToTrackRatio = 0.4 ' The ratio between the key guide tine thickness and the guide track thickness.
-Dim guideSupportDepth : guideSupportDepth = 8.0 ' mm The radial depth of the key body width support for the track.  
-
-'______________________ Derived Parameters.  Stuff that is computed from the major and minor parameters. ___________________________
-
-Dim keyBodyWidth : keyBodyWidth = nominalKeyWidth * 0.5 - lateralKeyGap ' The width between keys at the key body.
-Dim halfKeyBodyWidth : halfKeyBodyWidth = keyBodyWidth * 0.5
-Dim keyGuideTrackWidth : keyGuideTrackWidth = (nominalKeyWidth * 0.5 - 2 * guideFeltThickness) * tineToTrackRatio ' Width of the guide track on the key.
-Dim keyGuideTineWidth : keyGuideTineWidth = (nominalKeyWidth * 0.5 - 2 * guideFeltThickness) * (1 - tineToTrackRatio) ' Width of the tine on the (stationary) key guide.
-
-Dim keyWidth : keyWidth = nominalKeyWidth - lateralKeyGap  ' The width of the touchpoint part of the key
-Dim halfKeyWidth : halfKeyWidth = keyWidth * 0.5
-
-'______________________ Helper Functions ______________________
-
-' Check if a number is even or odd.
-Function is_even(number)
-	is_even = Not CBool(number Mod 2)
-End Function
-Function is_odd(number)
-	is_odd = CBool(number Mod 2)
-End Function
-
-'Add an element to an array.  (The array must be resizable.)
-Function add_element_to_array(ByRef inArray, ByVal newElement)
-	Dim elementCount : elementCount = UBound(inArray)+1
-	ReDim Preserve inArray(elementCount)
-	inArray(elementCount) = newElement
-End Function
-
-'Rotate a point counter-clockwise about the origin by specifying an angle (radians)
-Function rotate_2D_point_by_angle(ByVal inPoint, ByVal rotationAngle, ByRef outPoint)
-	Dim r, theta, inX, inY, inZ, outX, outY
-	inX = inPoint(0)
-	inY = inPoint(1)
-	inZ	= inPoint(2)
-	
-	Rhino.Print "rotate_2D_point_by_angle: inPoint = " & Rhino.Pt2Str(inPoint) & " rotationAngle = " & CStr(rotationAngle)
-
-	r = Sqr(inX*inX + inY*inY)
-	theta = Rhino.ATan2(inY, inX)
-	theta = theta + rotationAngle
-	outX = r * Cos(theta)
-	outY = r * Sin(theta)
-	outPoint = Array(outX, outY, inZ)
-
-	Rhino.Print "rotate_2D_point_by_angle: outPoint = " & Rhino.Pt2Str(outPoint)
-	
-End Function
-
-'Rotate a point counter-clockwise about the origin by specifying an distance (mm)
-Function rotate_2D_point_by_distance(ByVal inPoint, ByVal rotationDistance, ByRef outPoint)
-	Dim r, theta, rotationAngle, inX, inY, inZ, outX, outY
-	inX = inPoint(0)
-	inY = inPoint(1)
-	inZ	= inPoint(2)
-
-	Rhino.Print "rotate_2D_point_by_distance: inPoint = " & Rhino.Pt2Str(inPoint) & " rotationDistance = " & CStr(rotationDistance)
-	
-	r = Sqr(inX*inX + inY*inY)
-	theta = Rhino.ATan2(inY, inX)
-	theta = theta + (rotationDistance / r)
-	outX = r * Cos(theta)
-	outY = r * Sin(theta)
-	outPoint = Array(outX, outY, inZ)
-	
-	Rhino.Print "rotate_2D_point_by_distance: outPoint = " & Rhino.Pt2Str(outPoint)
-	
-End Function
-
-'Move a point radially away from the origin by a specified ammount
-Function move_2D_point_radially(ByVal inPoint, ByVal radiationAmmount, ByRef outPoint)
-	Dim r, theta, inX, inY, inZ, outX, outY
-	inX = inPoint(0)
-	inY = inPoint(1)
-	inZ	= inPoint(2)
-
-	Rhino.Print "move_2D_point_radially: inPoint = " & Rhino.Pt2Str(inPoint) & " radiationAmmount = " & CStr(radiationAmmount)
-	
-	r = Sqr(inX*inX + inY*inY)
-	r = r + radiationAmmount
-	theta = Rhino.ATan2(inY, inX)
-	outX = r * Cos(theta)
-	outY = r * Sin(theta)
-	outPoint = Array(outX, outY, inZ)
-
-	Rhino.Print "move_2D_point_radially: outPoint = " & Rhino.Pt2Str(outPoint)
-	
-End Function
-
-'Given two points on a line, and a circle centered at the origin, find the intersection closest to the first line point.
-'Will pop up a window with an error message if there is no intersection.
-' Note: this function works in the x-y plane only!
-Function intersect_line_with_circle(ByVal inPoint1, ByVal inPoint2, ByVal r, ByRef outPoint)
-	Rhino.Print "intersect_line_with_circle: inPoint1 = " & Rhino.Pt2Str(inPoint1) & " inPoint2 = " & Rhino.Pt2Str(inPoint2) & " r = " & CStr(r)
-	
-	Dim z, x1, x2, y1, y2, outX, outY, alpha1, alpha2, alpha, a, b, c, underRadical
-	x1 = inPoint1(0)
-	y1 = inPoint1(1)
-	z  = inPoint1(2)
-	x2 = inPoint2(0)
-	y2 = inPoint2(1)
-
-	' The coefficients for the quadratic in alpha
-	a = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)
-	b = 2 * x2 * (x1 - x2) + 2 * y2 * (y1 - y2)
-	c = x2*x2 + y2*y2 - r*r
-
-	underRadical = b*b - 4*a*c
-
-	If (underRadical <= 0) Then
-		Rhino.MessageBeep 
-		Rhino.TextOut "intersect_line_with_circle: Line does not appear to intersect the circle non-trivially!!"
-		Rhino.TextOut "underRadical = " & CStr(underRadical)
-	End If
-
-	alpha1 = (-b + Sqr(underRadical))/(2*a)
-	alpha2 = (-b - Sqr(underRadical))/(2*a)
-	
-	'Choose the alpha closest to one (which corresponds to the first point)
-	If ((alpha1 - 1)^2 < (alpha2 - 1)^2) Then
-		alpha = alpha1
-	Else
-		alpha = alpha2
-	End If
-	
-	outX = alpha * x1 + (1-alpha) * x2
-	outY = alpha * y1 + (1-alpha) * y2
-		
-	outPoint = Array(outX, outY, z)
-
-	Rhino.Print "intersect_line_with_circle: outPoint = " & Rhino.Pt2Str(outPoint)
-	
-End Function
-
-'Same as intersect_line_with_circle, but takes uses a point to define the circle instead of a radius.
-Function intersect_line_with_circle2(ByVal inPoint1, ByVal inPoint2, ByVal circlePoint, ByRef outPoint)
-
-	Rhino.Print "intersect_line_with_circle2: inPoint1 = " & Rhino.Pt2Str(inPoint1) & " inPoint2 = " & Rhino.Pt2Str(inPoint2) & " circlePoint = " & Rhino.Pt2Str(circlePoint)
-
-	Dim r, x, y
-	x = circlePoint(0)
-	y = circlePoint(1)
-	r = Sqr(x^2 + y^2)
-
-	Rhino.Print "intersect_line_with_circle2: outPoint = " & Rhino.Pt2Str(outPoint)
-
-	Call intersect_line_with_circle(inPoint1, inPoint2, r, outPoint)
-
-	Rhino.Print "intersect_line_with_circle2: outPoint = " & Rhino.Pt2Str(outPoint)
-
-End Function
-
-'Add an arc that goes through two points and will be centered at the origin (up to the precision of the passed points)
-'Arc will go through the two points up to the precision of Rhino's AddArc3Pt routine, even if they are not equidistant from the origin
-Function add_centered_arc(ByVal inPoint1, ByVal inPoint2)
-	Rhino.Print "add_centered_arc: inPoint1 = " & Rhino.Pt2Str(inPoint1) & " inPoint2 = " & Rhino.Pt2Str(inPoint2)
-	Dim intermediatePoint, theta, r, r1, r2, midPoint
-	
-	theta = Rhino.ATan2(inPoint1(1) + inPoint2(1), inPoint1(0) + inPoint2(0) )  ' The sum of the two points will almost give a good angle for a point in the middle of the arc.
-
-	' Use the average radius of the two points.
-	r1 = Sqr(inPoint1(0)^2 + inPoint1(1)^2)
-	r2 = Sqr(inPoint2(0)^2 + inPoint2(1)^2)
-	r = (r1 + r2) * 0.5
-
-	midPoint = Array( r * Cos(theta),  r * Sin(theta), 0.0 )		
-
-	add_centered_arc = Rhino.AddArc3Pt (inPoint1, inPoint2, midPoint)
-
-End Function
-
-'Take an array of curves and extrude them into an object symmetrically along the z-axis by a specified total width.
-'Deletes the array of curve objects to reduce clutter.
-Function extrude_curve_along_z(ByRef curveArray, ByVal width)
-	Dim tempSurface, tempSurface2, extrudeCurve, extrusion
-	tempSurface = Rhino.AddPlanarSrf(curveArray)
-	tempSurface2 = tempSurface(0)
-	extrudeCurve = Rhino.AddLine(Array(0.0,0.0,0.0), Array(0.0,0.0,width))
-	extrusion = Rhino.ExtrudeSurface(tempSurface2, extrudeCurve)
-	Call Rhino.MoveObject(extrusion, Array(0.0,0.0,0.0), Array(0.0,0.0, width * -0.5))
-	Call Rhino.DeleteObject(extrudeCurve)
-	Call Rhino.DeleteObject(tempSurface2)
-	Call Rhino.DeleteObjects(curveArray)
-	extrude_curve_along_z = extrusion
-End Function
-
-	Call Main()
+Call Main()
 Sub Main()
 	'____________________________________________________________________________________________
 	' Compute the locations of the four corners of each key in the X-Y plane.
@@ -313,7 +107,7 @@ Sub Main()
 		backArc = add_centered_arc(topBackCorner, bottomBackCorner)
 
 		'Perform the extrusion to get our box.
-		Dim touchpointExtrusion : touchpointExtrusion = extrude_curve_along_z(Array(topCurve, bottomCurve, frontArc, backArc), keyWidth)
+		Dim touchpointExtrusion : touchpointExtrusion = extrude_curve_along_z_symmetric(Array(topCurve, bottomCurve, frontArc, backArc), keyWidth)
 		touchpointArray(rowIndex-1) = touchpointExtrusion
 
 	Next
@@ -341,22 +135,36 @@ Sub Main()
 	Rhino.Print "Defining the point where the supports part of the body curve starts..."
 	Dim supportCurveStartPoint, supportCurveEndPoint
 	Call rotate_2D_point_by_angle(bottomFrontCorners(1), -1.0 * keyTravelAngle, supportCurveStartPoint)
-	Call rotate_2D_point_by_distance(supportCurveStartPoint, -1.0 * angularKeyGap - frontKeySupportThickness, supportCurveStartPoint)
+	Call rotate_2D_point_by_distance(supportCurveStartPoint, -1.0 * (angularKeyGap + frontKeySupportThickness), supportCurveStartPoint)
 
-	' Draw the part of the body that mates with the first and second row supports. (Which is an oddly shaped support for the first row, odd keys).
+	' Draw the part of the body for the first row (odd keys) supports. 
 	Rhino.Print "Drawing an oddly shaped support for the first row, odd keys..."
-	Call rotate_2D_point_by_angle(bottomFrontCorners(0), -1.0 * keyTravelAngle, tempPoint1) 
-	Call rotate_2D_point_by_distance(tempPoint1, -1.0 * angularKeyGap, tempPoint1) ' tempPoint1 is now the bottom-frontmost point of the support.
-	oddSupportsCurves(0) = Rhino.AddLine(supportCurveStartPoint, tempPoint1) 
+	rowIndex = 1
+	Call rotate_2D_point_by_angle(bottomBackCorners(rowIndex - 1), -1.0 * keyTravelAngle, tempPoint2)			
+	Call rotate_2D_point_by_distance(tempPoint2, -1.0 * angularKeyGap, tempPoint2)	
+	Call rotate_2D_point_by_angle(bottomFrontCorners(rowIndex), -1.0 * keyTravelAngle, tempPoint3)			
+	Call rotate_2D_point_by_distance(tempPoint3, -1.0 * angularKeyGap, tempPoint3)	
+	Call rotate_2D_point_by_angle(bottomBackCorners(rowIndex), -1.0 * keyTravelAngle, tempPoint4)			
+	Call rotate_2D_point_by_distance(tempPoint4, -1.0 * angularKeyGap, tempPoint4)	
+	Call rotate_2D_point_by_angle(bottomFrontCorners(rowIndex+1), -1.0 * keyTravelAngle, tempPoint5)			
+	Call rotate_2D_point_by_distance(tempPoint5, -1.0 * angularKeyGap, tempPoint5)	
 
+	oddSupportsCurves(0) = Rhino.AddLine(supportCurveStartPoint, bottomFrontCorners(0)) ' Line
+	Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(bottomFrontCorners(0), bottomBackCorners(0))) 'Line
+	Call add_element_to_array(oddSupportsCurves, add_centered_arc(bottomBackCorners(0), tempPoint2)) 'Arc
+	Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(tempPoint2, tempPoint3)) 'Line
+	Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(tempPoint3, tempPoint4)) 'Line
+	Call add_element_to_array(oddSupportsCurves, Rhino.AddLine(tempPoint4, tempPoint5)) 'Line
+
+
+	' Add the little arc to get the second row support up to the canonical support position.
 	Call rotate_2D_point_by_angle(bottomFrontCorners(1), -1.0 * keyTravelAngle, tempPoint1)
 	Call rotate_2D_point_by_distance(tempPoint1, -1.0 * angularKeyGap, tempPoint1)
-
 	evenSupportsCurves(0) = add_centered_arc(supportCurveStartPoint, tempPoint1)
 
-	' Draw the normal supports.
+	' Draw the normal supports, starting from the second row, starting from the second row.
 	Rhino.Print "Starting to draw the normal touchpoint supports..."
-	For rowIndex = 1 To (rowCount - 2)
+	For rowIndex = 2 To (rowCount - 2)
 
 		Call rotate_2D_point_by_angle(bottomFrontCorners(rowIndex - 1), -1.0 * keyTravelAngle, tempPoint1)
 		Call rotate_2D_point_by_distance(tempPoint1, -1.0 * angularKeyGap, tempPoint1)	
@@ -476,8 +284,8 @@ Sub Main()
 	Call add_element_to_array(evenKeyBodyCurves, Rhino.AddLine(originPoint, supportCurveStartPoint))
 	
 	' Extrude the key bodies out into 3D
-	Dim oddKeyBodyExtrusion : oddKeyBodyExtrusion = extrude_curve_along_z(oddKeyBodyCurves, keyBodyWidth)		
-	Dim evenKeyBodyExtrusion : evenKeyBodyExtrusion = extrude_curve_along_z(evenKeyBodyCurves, keyBodyWidth)		
+	Dim oddKeyBodyExtrusion : oddKeyBodyExtrusion = extrude_curve_along_z_symmetric(oddKeyBodyCurves, keyBodyWidth)		
+	Dim evenKeyBodyExtrusion : evenKeyBodyExtrusion = extrude_curve_along_z_symmetric(evenKeyBodyCurves, keyBodyWidth)		
 
 	' Union the odd and even key tops with their respective key bodies
 	Dim evenKeySolid, oddKeySolid
@@ -497,10 +305,38 @@ Sub Main()
 	' Move the even key out one nominal key spacing.
 	Call Rhino.MoveObject(evenKeySolid, Array(0.0,0.0,0.0), Array(0.0,0.0,nominalKeyWidth * 0.5))
 
+	' Tesselate the keys so that we have one module's worth.
+	ReDim evenKeySolids(keysPerModule/2 - 1)
+	ReDim oddKeySolids(keysPerModule/2 - 1)
+	Dim copyIndex
+	For copyIndex = 1 To keysPerModule/2
+		evenKeySolids(copyIndex - 1) = Rhino.CopyObject(evenKeySolid, Array(0.0,0.0,0.0), Array(0.0,0.0,nominalKeyWidth * (copyIndex - 1)))
+		oddKeySolids(copyIndex - 1)  = Rhino.CopyObject(oddKeySolid,  Array(0.0,0.0,0.0), Array(0.0,0.0,nominalKeyWidth * (copyIndex - 1)))
+	Next
+
+	'Depress a couple of the keys to check gaps and visualize ergonomics
+	'If there are four or more keys, rotate the third key, which is the second odd key, index 1.
+	If keysPerModule > 3 Then
+		Call Rhino.RotateObject(oddKeySolids(1), Array(0.0,0.0,0.0), -1.0 * keyTravelAngle * 180 / Rhino.Pi, Array(0.0,0.0,1.0))
+	End If
+	'If there are seven or more keys, rotate the sixth key, which is the third even key, index 2.
+	If keysPerModule > 5 Then
+		Call Rhino.RotateObject(evenKeySolids(2), Array(0.0,0.0,0.0), -1.0 * keyTravelAngle * 180 / Rhino.Pi, Array(0.0,0.0,1.0))
+	End If
+
 	'____________________________________________________________________________________________
 	' Go ahead and render everything
 
 	Rhino.Print "Model is ready for display..."
+
+	' Rotate the entire model so that it is easier to view
+'	Call Rhino.RotateObjects(Array(evenKeySolid, oddKeySolid), Array(0.0,0.0,0.0), 90 , Array(1.0,0.0,0.0))
+	Call Rhino.RotateObjects(Rhino.AllObjects, Array(0.0,0.0,0.0), 90 , Array(1.0,0.0,0.0))
+
+	Call Rhino.ShowGrid(Rhino.CurrentView, False)
+	Call Rhino.ShowGridAxes(Rhino.CurrentView, False)
+	Call Rhino.ShowWorldAxes(Rhino.CurrentView, False)
+
 	'Turn rendering back on.
 	Call Rhino.ZoomExtents(Rhino.CurrentView,True) ' Zoom all views to object extents
 	'Set the rendering mode to shaded

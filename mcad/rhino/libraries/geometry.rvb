@@ -1,0 +1,141 @@
+'Rotate a point counter-clockwise about the origin by specifying an angle (radians)
+Function rotate_2D_point_by_angle(ByVal inPoint, ByVal rotationAngle, ByRef outPoint)
+	Dim r, theta, inX, inY, inZ, outX, outY
+	inX = inPoint(0)
+	inY = inPoint(1)
+	inZ	= inPoint(2)
+	
+	Rhino.Print "rotate_2D_point_by_angle: inPoint = " & Rhino.Pt2Str(inPoint) & " rotationAngle = " & CStr(rotationAngle)
+
+	r = Sqr(inX*inX + inY*inY)
+	theta = Rhino.ATan2(inY, inX)
+	theta = theta + rotationAngle
+	outX = r * Cos(theta)
+	outY = r * Sin(theta)
+	outPoint = Array(outX, outY, inZ)
+
+	Rhino.Print "rotate_2D_point_by_angle: outPoint = " & Rhino.Pt2Str(outPoint)
+	
+End Function
+
+'Rotate a point counter-clockwise about the origin by specifying an distance (mm)
+Function rotate_2D_point_by_distance(ByVal inPoint, ByVal rotationDistance, ByRef outPoint)
+	Dim r, theta, rotationAngle, inX, inY, inZ, outX, outY
+	inX = inPoint(0)
+	inY = inPoint(1)
+	inZ	= inPoint(2)
+
+	Rhino.Print "rotate_2D_point_by_distance: inPoint = " & Rhino.Pt2Str(inPoint) & " rotationDistance = " & CStr(rotationDistance)
+	
+	r = Sqr(inX*inX + inY*inY)
+	theta = Rhino.ATan2(inY, inX)
+	theta = theta + (rotationDistance / r)
+	outX = r * Cos(theta)
+	outY = r * Sin(theta)
+	outPoint = Array(outX, outY, inZ)
+	
+	Rhino.Print "rotate_2D_point_by_distance: outPoint = " & Rhino.Pt2Str(outPoint)
+	
+End Function
+
+'Move a point radially away from the origin by a specified ammount
+Function move_2D_point_radially(ByVal inPoint, ByVal radiationAmmount, ByRef outPoint)
+	Dim r, theta, inX, inY, inZ, outX, outY
+	inX = inPoint(0)
+	inY = inPoint(1)
+	inZ	= inPoint(2)
+
+	Rhino.Print "move_2D_point_radially: inPoint = " & Rhino.Pt2Str(inPoint) & " radiationAmmount = " & CStr(radiationAmmount)
+	
+	r = Sqr(inX*inX + inY*inY)
+	r = r + radiationAmmount
+	theta = Rhino.ATan2(inY, inX)
+	outX = r * Cos(theta)
+	outY = r * Sin(theta)
+	outPoint = Array(outX, outY, inZ)
+
+	Rhino.Print "move_2D_point_radially: outPoint = " & Rhino.Pt2Str(outPoint)
+	
+End Function
+
+'Given two points on a line, and a circle centered at the origin, find the intersection closest to the first line point.
+'Will pop up a window with an error message if there is no intersection.
+' Note: this function works in the x-y plane only!
+Function intersect_line_with_circle(ByVal inPoint1, ByVal inPoint2, ByVal r, ByRef outPoint)
+	Rhino.Print "intersect_line_with_circle: inPoint1 = " & Rhino.Pt2Str(inPoint1) & " inPoint2 = " & Rhino.Pt2Str(inPoint2) & " r = " & CStr(r)
+	
+	Dim z, x1, x2, y1, y2, outX, outY, alpha1, alpha2, alpha, a, b, c, underRadical
+	x1 = inPoint1(0)
+	y1 = inPoint1(1)
+	z  = inPoint1(2)
+	x2 = inPoint2(0)
+	y2 = inPoint2(1)
+
+	' The coefficients for the quadratic in alpha
+	a = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)
+	b = 2 * x2 * (x1 - x2) + 2 * y2 * (y1 - y2)
+	c = x2*x2 + y2*y2 - r*r
+
+	underRadical = b*b - 4*a*c
+
+	If (underRadical <= 0) Then
+		Rhino.MessageBeep 
+		Rhino.TextOut "intersect_line_with_circle: Line does not appear to intersect the circle non-trivially!!"
+		Rhino.TextOut "underRadical = " & CStr(underRadical)
+	End If
+
+	alpha1 = (-b + Sqr(underRadical))/(2*a)
+	alpha2 = (-b - Sqr(underRadical))/(2*a)
+	
+	'Choose the alpha closest to one (which corresponds to the first point)
+	If ((alpha1 - 1)^2 < (alpha2 - 1)^2) Then
+		alpha = alpha1
+	Else
+		alpha = alpha2
+	End If
+	
+	outX = alpha * x1 + (1-alpha) * x2
+	outY = alpha * y1 + (1-alpha) * y2
+		
+	outPoint = Array(outX, outY, z)
+
+	Rhino.Print "intersect_line_with_circle: outPoint = " & Rhino.Pt2Str(outPoint)
+	
+End Function
+
+'Same as intersect_line_with_circle, but takes uses a point to define the circle instead of a radius.
+Function intersect_line_with_circle2(ByVal inPoint1, ByVal inPoint2, ByVal circlePoint, ByRef outPoint)
+
+	Rhino.Print "intersect_line_with_circle2: inPoint1 = " & Rhino.Pt2Str(inPoint1) & " inPoint2 = " & Rhino.Pt2Str(inPoint2) & " circlePoint = " & Rhino.Pt2Str(circlePoint)
+
+	Dim r, x, y
+	x = circlePoint(0)
+	y = circlePoint(1)
+	r = Sqr(x^2 + y^2)
+
+	Rhino.Print "intersect_line_with_circle2: outPoint = " & Rhino.Pt2Str(outPoint)
+
+	Call intersect_line_with_circle(inPoint1, inPoint2, r, outPoint)
+
+	Rhino.Print "intersect_line_with_circle2: outPoint = " & Rhino.Pt2Str(outPoint)
+
+End Function
+
+'Add an arc that goes through two points and will be centered at the origin (up to the precision of the passed points)
+'Arc will go through the two points up to the precision of Rhino's AddArc3Pt routine, even if they are not equidistant from the origin
+Function add_centered_arc(ByVal inPoint1, ByVal inPoint2)
+	Rhino.Print "add_centered_arc: inPoint1 = " & Rhino.Pt2Str(inPoint1) & " inPoint2 = " & Rhino.Pt2Str(inPoint2)
+	Dim intermediatePoint, theta, r, r1, r2, midPoint
+	
+	theta = Rhino.ATan2(inPoint1(1) + inPoint2(1), inPoint1(0) + inPoint2(0) )  ' The sum of the two points will almost give a good angle for a point in the middle of the arc.
+
+	' Use the average radius of the two points.
+	r1 = Sqr(inPoint1(0)^2 + inPoint1(1)^2)
+	r2 = Sqr(inPoint2(0)^2 + inPoint2(1)^2)
+	r = (r1 + r2) * 0.5
+
+	midPoint = Array( r * Cos(theta),  r * Sin(theta), 0.0 )		
+
+	add_centered_arc = Rhino.AddArc3Pt (inPoint1, inPoint2, midPoint)
+
+End Function
