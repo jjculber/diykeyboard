@@ -1,0 +1,98 @@
+' This library consists of functions that defy catagorization.
+
+
+' Replace an annotation text object with its planar surface representation.
+Function text_to_curves(ByRef inText)
+	If Not Rhino.IsText(inText) Then
+		Rhino.MessageBeep
+		Rhino.Print "text_to_curves: input object must be a text object!"
+	End If
+	
+	Rhino.SelectObject(inText)
+	Rhino.Command("Explode")
+	text_to_curves = Rhino.SelectedObjects
+
+	Rhino.DeleteObject(inText)
+	Rhino.Print "text_to_curves: Done creating Curves from Text"	
+End Function
+
+
+' Replace an annotation text object with its planar surface representation.
+Function text_to_surfaces(ByRef inText)
+	If Not Rhino.IsText(inText) Then
+		Rhino.MessageBeep
+		Rhino.Print "text_to_surfaces: input object must be a text object!"
+	End If
+	
+	Dim curveArray : curveArray = text_to_curves(inText)
+
+	text_to_surfaces = Rhino.AddPlanarSrf(curveArray)
+
+	Rhino.DeleteObjects(curveArray)
+	Rhino.Print "text_to_surface: Done creating Surface from Text"	
+End Function
+
+'A version of Rhino.ExtrudeSurface that operates on an array of surfaces, and returns an array of solids.
+'All surfaces are extruded along the same extrusion path.
+Function extrude_surfaces(surfaceArray, extrudeCurve)
+	Dim surfaceCount : surfaceCount = UBound(surfaceArray) + 1
+	ReDim tempArray(surfaceCount - 1)
+	For surfaceIndex = 1 To surfaceCount
+		tempArray(surfaceIndex - 1) = Rhino.ExtrudeSurface(surfaceArray(surfaceIndex - 1), extrudeCurve)
+	Next
+	extrude_surfaces = tempArray
+End Function
+
+'Take an array of curves and extrude them into one or more objects symmetrically along the z-axis by a specified total width.
+'Deletes the array of curve objects to reduce clutter.
+Function extrude_curve_along_z(ByRef curveArray, ByVal width)
+	Dim tempSurfaces, extrudeCurve, extrusions
+	tempSurfaces = Rhino.AddPlanarSrf(curveArray)
+
+	extrudeCurve = Rhino.AddLine(Array(0.0,0.0,0.0), Array(0.0,0.0,width))	
+	extrusions = extrude_surfaces(tempSurfaces, extrudeCurve)
+
+	If UBound(extrusions)=0 Then
+		extrude_curve_along_z = extrusions(0) 'If Array has only one element, don't return as an array.
+	Else
+		extrude_curve_along_z = extrusions
+	End If
+
+	Call Rhino.DeleteObject(extrudeCurve)
+	Call Rhino.DeleteObjects(tempSurfaces)
+	Call Rhino.DeleteObjects(curveArray)
+End Function
+'Take an array of curves and extrude them into an object along the z-axis by a specified total width.
+'Deletes the array of curve objects to reduce clutter.
+Function extrude_curve_along_z_symmetric(ByRef curveArray, ByVal width)
+	extrude_curve_along_z_symmetric = extrude_curve_along_z(curveArray, width)
+	Call Rhino.MoveObject(extrude_curve_along_z_symmetric, Array(0.0,0.0,0.0), Array(0.0,0.0, width * -0.5))
+End Function
+
+' Add lines and points marking the world origin.
+' This can be useful when using the gui and you need something to align the construction plane to.
+Sub add_world_origin
+	Call AddPoint(Array(0.0,0.0,0.0))
+	Call AddPoint(Array(1.0,0.0,0.0))
+	Call AddPoint(Array(0.0,1.0,0.0))
+	Call AddPoint(Array(0.0,0.0,1.0))
+	Call AddLine(Array(0.0,0.0,0.0),Array(1.0,0.0,0.0))
+	Call AddLine(Array(0.0,0.0,0.0),Array(0.0,1.0,0.0))
+	Call AddLine(Array(0.0,0.0,0.0),Array(0.0,0.0,1.0))
+End Sub
+
+' Check if a number is even or odd.
+Function is_even(number)
+	is_even = Not CBool(number Mod 2)
+End Function
+Function is_odd(number)
+	is_odd = CBool(number Mod 2)
+End Function
+
+'Add an element to an array.  (The array must be resizable.)
+Function add_element_to_array(ByRef inArray, ByVal newElement)
+	Dim elementCount : elementCount = UBound(inArray)+1
+	ReDim Preserve inArray(elementCount)
+	inArray(elementCount) = newElement
+End Function
+

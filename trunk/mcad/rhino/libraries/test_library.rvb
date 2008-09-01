@@ -1,0 +1,11 @@
+﻿Option Explicit
+'Script written by <insert name>
+'Script copyrighted by <insert company name>
+'Script version Saturday, August 30, 2008 11:20:35 AM
+
+Rhino.Print("Test Library was loaded and run!")
+testLibraryLoaded = 1
+
+Function double_number(inNumber)
+	double_number = inNumber * 2.0
+End Function

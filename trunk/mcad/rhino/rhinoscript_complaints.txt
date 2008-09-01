@@ -10,10 +10,15 @@ Vbscript is way too verbose for programming geometry...
 	i.e. variables can not be initialized at declaration, i.e. you have to Dim strlongVariableName : strlongVariableName = "Fuck Vbscript"
 	
 Dividing by a variable that has not even been initialized yet fails silently, resulting in cryptic errors elsewhere in your code.
+
 There seems to be no consistency in the API w.r.t. whether functions return arrays of objects or just a single object.
+
 The Monkey Editor stays on top, no matter what, forcing you to maximize and minimize the window to see the results of your script.
+
 Errors often pop up in a window instead of just showing up in the console (like is standard in just about every other IDE ever made)
+
 The little error window often gets written over due to a rendering glitch, preventing you from seeing the actual error.
+
 The error string if often un-helpul even if you make it past the last three hurdles.
 
 The built-in rhinoscript editor doesn't proide a visual indication of the save state of your document

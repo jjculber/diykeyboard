@@ -2,19 +2,22 @@
 'as a technology for parametrically generating keys for the DIY Keyboard project.
 'Cooked up by Drew Wagner in June 2008
 Option Explicit
-Call Main()
 
+Rhino.Print "Starting to generate a diykeyboard.org keychain from a script..."
+
+Rhino.Command("-LoadScript " & Rhino.WorkingFolder & "\libraries\misc.rvb")
+Rhino.Command("-LoadScript " & Rhino.WorkingFolder & "\libraries\geometry.rvb")
+
+Call Main
 Sub Main()
-	Rhino.Print "Starting to generate a diykeyboard.org keychain from a script..."
-
 	'Turn off rendering temporarily to speed things up.
 	Rhino.EnableRedraw(False)
-	
+
 	Rhino.Print "Deleting everything in the document so we can start from scratch..."
 	If Not IsNull(Rhino.AllObjects) Then
 		Rhino.DeleteObjects(Rhino.AllObjects)
 	End If
-	
+
 	'Keychain Parameters
 	Dim strKeychainText : strKeychainText = "diykeyboard.org"
 	Dim dblKeychainWidth : dblKeychainWidth = 95.0 'mm
@@ -24,6 +27,7 @@ Sub Main()
 	Dim dblHoleRadius : dblHoleRadius = 2.5 'mm
 	Dim dblHoleDistanceFromEdge : dblHoleDistanceFromEdge = 5.0 'mm
 	Dim dblSmallNumber : dblSmallNumber = 1.0' mm
+	Dim dblEngravingDepth : dblEngravingDepth = 1.0 ' mm
 	
 	'Draw the curve for the bottom of the keychain
 	Dim arrBottomPoints(4)
@@ -36,31 +40,36 @@ Sub Main()
 
 	' Convert the curve into a surface
 	Dim strExtrudeSurface: strExtrudeSurface = Rhino.AddPlanarSrf(Array(strBottomCurve)) (0) ' Note that AddPlanarSrf returns an array of surfaces.
-	
+
 	'Create a curve for the extrusion
 	Dim strExtrudeCurve : strExtrudeCurve = Rhino.AddPolyline(Array(Array(0.0, 0.0, 0.0), Array(0.0, 0.0, dblKeychainThickness)))
-		
+	
 	'Perform the extrusion to get our box.
 	Dim strExtrusion : strExtrusion = Rhino.ExtrudeSurface(strExtrudeSurface, strExtrudeCurve)
 
 	'Drill a hole through the keychain for the key ring
 	Dim strHoleCylinder : strHoleCylinder = Rhino.AddCylinder(Array(dblHoleDistanceFromEdge,dblKeychainHeight/2,-dblSmallNumber),Array(dblHoleDistanceFromEdge,dblKeychainHeight/2,dblSmallNumber + dblKeychainThickness),dblHoleRadius)
-	
+
 	'Note that the boolean deletes all input objects by default.
 	Dim strKeychainArray
 	strKeychainArray = Rhino.BooleanDifference(Array(strExtrusion), Array(strHoleCylinder))
 	'	Dim strKeychain
 	'	strKeychain = strKeychain(0)
-	
-	'Emboss the diykeyboard URL onto the keychain.  3D Doesn't seem possible from Rhinoscript yet.
-	Dim strTextObject : strTextObject = Rhino.AddText(strKeychainText, Array(dblKeychainHeight/2.0, dblKeychainHeight/2.0 - dblTextHeight/2.0, dblKeychainThickness), dblTextHeight)
 
+	'Emboss the diykeyboard URL onto the keychain. 
+	Dim strTextObject : strTextObject = Rhino.AddText(strKeychainText, Array(dblKeychainHeight/2.0, dblKeychainHeight/2.0 - dblTextHeight/2.0, dblKeychainThickness), dblTextHeight)
+	Dim textSolids : textSolids = extrude_curve_along_z(text_to_curves(strTextObject), -1.0 * dblEngravingDepth)
+
+	
+	strKeychainArray = Rhino.BooleanDifference(strKeychainArray, textSolids)
+	
+	
+	
 	'Delete the extraneous objects we used for their Geometry
-	'Rhino.DeleteObjects(arrBottomPoints)  ' These points are not actually objects! 
 	Rhino.DeleteObject(strBottomCurve)
 	Rhino.DeleteObject(strExtrudeSurface)
 	Rhino.DeleteObject(strExtrudeCurve)
-	
+
 	' Turn rendering back on so that we can see our keychain!
 	Rhino.EnableRedraw(True)
 
