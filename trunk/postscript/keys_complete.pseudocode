@@ -1,0 +1,138 @@
+%!
+
+/inches {72 mul} def % Convert length from inches
+/millimeters {2.83464567 mul} def % Convert length from millimeters
+
+/degrees {} def % Convert angle from degrees
+/radians {57.2974 mul} def % Convert angle from radians
+
+% Subroutine to draw a little cross centered at the current origin.
+/drawcross {
+	/crosswidth .2 inches def
+	newpath
+	crosswidth neg 0 moveto
+	crosswidth 0 lineto
+	stroke
+	newpath
+	0 crosswidth neg moveto
+	0 crosswidth lineto
+	stroke
+} def
+
+% Major key parameters
+/keylength 1 inches def
+/keytravel_angle 4 degrees def
+
+% Yamaha key spacing
+/keyspacing 167 millimeters 7 div def
+
+% Minor key parameters
+/depressed_edge_height .1 inches def  % This is an arclength.
+/keygap .08 inches def
+/row_visibility_tolerance 2 def % This is a multiple of depressed_edge_height.  Increase until gap under the next touchpoint cannot be seen from most viewing angles.
+
+/keywidth keyspacing keygap sub def
+
+% x y cartesian_to_angle angle
+/cartesian_to_angle {
+	exch atan
+} def
+/cartesian_to_r {
+	/paramy exch def
+	/paramx exch def
+	paramx paramx mul paramy paramy mul add sqrt
+} def
+
+
+% Subroutine to draw a touchpoint that rotates about the current origin, with a corner at the passed x,y.
+% cornerx cornery bottom_front_corner_angle drawtouchpoint_relative nextcornerx nextcornery nextbottomfrontangle
+/drawtouchpoint_relative {
+	
+	% First corner in cartesian coordinates
+	/bottom_front_angle exch def
+	/cornery exch def
+	/cornerx exch def
+
+	% First corner in polar coordinates
+	/cornerangle cornerx cornery cartesian_to_angle def
+	/cornerr cornerx cornery cartesian_to_r def
+
+	% Rear corner in cartesian coordinates
+	/rearcornerx cornerx keylength sub def
+
+	% Rear corner in polar coordinates
+	/rearcornerangle rearcornerx cornery cartesian_to_angle def
+	/rearcornerr rearcornerx cornery cartesian_to_r def
+
+	% Next corner in polar coordinates.
+	/nextcornerr rearcornerr keygap sub def
+	/depressed_edge_angle depressed_edge_height nextcornerr 3.1415 180 div mul div def
+	/nextcornerangle rearcornerangle keytravel_angle add depressed_edge_angle add def
+	
+	% Current Bottom rear coordinates.
+	/bottom_rear_angle rearcornerangle keytravel_angle sub def
+
+	% The next key's bottom front corner angle.
+	/nextbottomfrontangle bottom_rear_angle depressed_edge_angle row_visibility_tolerance mul sub def	
+
+	% Draw the key!
+	newpath
+	cornerx cornery moveto
+	0 0 cornerr cornerangle bottom_front_angle arcn
+	0 0 rearcornerr bottom_rear_angle rearcornerangle arc
+	closepath
+	gsave
+	0.5 setgray
+	fill
+	grestore
+	stroke
+
+	% nextcornerx
+	nextcornerr nextcornerangle cos mul
+
+	% nextcornery
+	nextcornerr nextcornerangle sin mul
+
+	nextbottomfrontangle
+	%0
+
+} def
+
+
+1.0 setlinewidth
+gsave
+5.5 inches 0.5 inches translate
+90 rotate
+drawcross
+
+/firstkeyx 10 inches def
+/firstkeyy .2 inches def
+/firstkeybottomangle firstkeyx firstkeyy cartesian_to_angle keytravel_angle sub 6 sub def
+%/firstkeybottomangle 0 def
+
+{
+% Draw depressed keys.
+gsave
+keytravel_angle neg rotate
+0.5 setgray
+firstkeyx firstkeyy firstkeybottomangle drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+pop pop pop
+grestore
+} pop
+
+% Draw un-depressed keys over the depressed keys.
+0 setgray
+firstkeyx firstkeyy firstkeybottomangle drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+drawtouchpoint_relative
+pop pop pop
+
+grestore
+
+showpage
