@@ -1,10 +1,10 @@
 ﻿' Run this file to generate a CAD model of a Janko layout keyboard with rotary keys.
 Option Explicit
 
-' Load in necerrary libraries and user-defined keyboard parameters.
+' Load in necessary libraries and user-defined keyboard parameters.
 Rhino.Command("-LoadScript " & Rhino.WorkingFolder & "\libraries\misc.rvb" )
 Rhino.Command("-LoadScript " & Rhino.WorkingFolder & "\libraries\geometry.rvb" )
-Rhino.Command("-LoadScript " & Rhino.WorkingFolder & "\parameters\six_key_rotary.rvb" )
+Rhino.Command("-LoadScript " & Rhino.WorkingFolder & "\parameters\five_key_rotary.rvb" )
 
 Call Main()
 Sub Main()
@@ -323,6 +323,20 @@ Sub Main()
 	If keysPerModule > 5 Then
 		Call Rhino.RotateObject(evenKeySolids(2), Array(0.0,0.0,0.0), -1.0 * keyTravelAngle * 180 / Rhino.Pi, Array(0.0,0.0,1.0))
 	End If
+
+
+	'____________________________________________________________________________________________
+	' Generate key guides.
+	' Hopefully one part can double as the fulcrum base, as well as upper and lower-front key guides.
+	'Redim keyGuideTeethCurves(0)
+
+	'For copyIndex = 1 To keysPerModule	 ' Iterate through keys.
+		' Draw a tooth.
+	'	Call add_element_to_array(keyGuideTeethCurves, Rhino.AddLine(bottomFrontCorners(0), bottomBackCorners(0))) 'Line
+	
+	'Next
+
+
 
 	'____________________________________________________________________________________________
 	' Go ahead and render everything

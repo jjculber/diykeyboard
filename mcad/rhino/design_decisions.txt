@@ -1,0 +1,62 @@
+
+Keyboard Design Decisions for Drew's first keyboard prototype:
+
+Design Goals for the keyboard as a whole:
+
+* The keyboard must support the playing of traditional piano music.
+
+* This is a design for a Janko keyboard in the full sense of the word.  This implies:
+	* There are multiple touchpoints per key, all of which sound the same pitch.
+	* The rows of touchpoints are tiered to support half-step chord slides and thumb usage on rows above the first.
+	* The geometry and movement of the touchpoints should be as uniform as practical.
+
+* All part CAD models are generated parametrically by scripts, so that:
+	* Individual builders can tune the geometric parameters to their liking.
+	* It is easier for community members to merge their refinements into the mainstream design.
+	* The design can be easily versioned and distributed via a SVN repository.
+
+* At minimum, all ergonomically important parameters, including the number of rows of touch-points, must be configurable by the user.
+
+* Key modules must be able to be assembled and serviced individually, to allow for easier prototyping, and to allow a keyboard of any multiple of the module size to be constructed.
+
+* Keys and key caps are one part to reduce the part count and improve key rigidity.
+	Ramification: Due to overlap of key caps with key bodies, the key bed must split for key module removal.
+			In the worst case, half of the modules will have to be unscrewed from the chassis.
+
+* The keys must be velocity sensitive, and support repeated legato notes without damper pedal.
+
+* The non-off-the shelf parts must be able to be fabricated by the user as much as possible.  
+	* As many parts resin-castable as possible
+	* Design the PCB with as few layers as possible, even if it requires jumpering some traces, prefer through-hole parts.
+
+More Specific Implementation Decisions:
+
+* It must be impossible to pinch your fingers in-between or under a key cap (overhangs not acceptable).
+
+* To reduce part count and simplify key supports, the keys rotate around a fulcrum.  (Future designs may transition to a parallelogram linkage to make touchpoint movement more uniform)
+
+* For return mechanism, coil springs are used in tension, to simplify part finding and spring positioning. (As opposed to using leaf springs, or coil springs in compression).  In future prototypes a gravity-driven mechanism may be used for a feel that is a little more like a piano, a little less like a synth.
+
+* Don't program plastic-reducing cutouts; the user can probably do a better job by hand anyway, dimensions are not critical, and this will be a rather fun, creative task.  Perhaps as the final step, the user defined cavities can be subtracted from the rest of the part.
+
+* Key version imprinted in the side of the key could be useful in the long run.
+
+* (?) Same part can be used for all three key guides and fulcrum.
+
+* Different thicknesses of felt for upper stop, lower stop, lateral alignment.
+
+Electronics:
+
+* Top mounted electronics could make reprogramming module firmware more convenient, and make it easier to test the scanner circuit on a 7-5 keyboard.
+
+* Key scanning done optically to give a lot of flexibility in how velocity and note off are computed.
+	* Can enable repeated legato note playing without using the damper pedal
+	* Other hacks to increase the key repeat rate, in the same spirit that mechanical hacks do in real pianos.
+	* Aftertouch for the synthheads
+	* Non-contact sensing; no contacts to corrode or wear.
+
+* Key scanner electronics modular at the same granularity as the key modules.
+	* Easier prototyping, debugging.
+	* Users can build a keyboard of any size, mod 8.
+
+
