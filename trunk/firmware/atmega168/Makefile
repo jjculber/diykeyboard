@@ -64,8 +64,7 @@
 #####     Customize these for your project     #####
 
 # Name of target controller 
-# (e.g. 'at90s8515', see the available avr-gcc mmcu 
-# options for possible values)
+# # avr-gcc -mmcu=sdlkfjsdlfkjsdlfkj main.c
 MCU=atmega168
 
 # id to use with programmer
