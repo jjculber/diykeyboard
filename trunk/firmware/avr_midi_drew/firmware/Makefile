@@ -10,13 +10,11 @@
 
 ## General Flags
 PROJECT = midimega
-#MCU = atmega16
 MCU = atmega168
 TARGET = $(PROJECT).elf
 DEBUG =  -DDEBUG_LEVEL=2
-CC = bin/avr-gcc
-AVRDUDE_MCU = 
-AVRDUDE = ${TOOLS_ROOT}/bin/avrdude -c usbasp -p$(MCU)
+CC = avr-gcc
+AVRDUDE = avrdude -C /Applications/arduino-0014/hardware/tools/avr/etc/avrdude.conf -c usbtiny -p$(MCU)
 
 # mcu clock freq, in Hz.
 FREQUENCY = 16000000
