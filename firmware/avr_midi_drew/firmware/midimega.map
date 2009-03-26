@@ -1,0 +1,453 @@
+Archive member included because of file (symbol)
+
+/Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_exit.o)
+                              /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/lib/avr5/crtm168.o (exit)
+/Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_copy_data.o)
+                              usbdrv.o (__do_copy_data)
+/Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_clear_bss.o)
+                              usbdrv.o (__do_clear_bss)
+
+Allocating common symbols
+Common symbol       size              file
+
+usbTxBuf            0xb               usbdrv.o
+usbTxBuf1           0xb               usbdrv.o
+usbDeviceAddr       0x1               usbdrv.o
+usbRxToken          0x1               usbdrv.o
+usbInputBufOffset   0x1               usbdrv.o
+usbMsgPtr           0x2               usbdrv.o
+usbRxLen            0x1               usbdrv.o
+usbNewDeviceAddr    0x1               usbdrv.o
+usbCurrentTok       0x1               usbdrv.o
+usbConfiguration    0x1               usbdrv.o
+usbRxBuf            0x16              usbdrv.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+text             0x00000000         0x00020000         xr
+data             0x00800060         0x0000ffa0         rw !x
+eeprom           0x00810000         0x00010000         rw !x
+fuse             0x00820000         0x00000400         rw !x
+lock             0x00830000         0x00000400         rw !x
+signature        0x00840000         0x00000400         rw !x
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+Address of section .data set to 0x800100
+LOAD /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/lib/avr5/crtm168.o
+LOAD usbdrv.o
+LOAD usbdrvasm.o
+LOAD oddebug.o
+LOAD main.o
+LOAD /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a
+LOAD /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/lib/avr5/libc.a
+LOAD /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a
+
+.hash
+ *(.hash)
+
+.dynsym
+ *(.dynsym)
+
+.dynstr
+ *(.dynstr)
+
+.gnu.version
+ *(.gnu.version)
+
+.gnu.version_d
+ *(.gnu.version_d)
+
+.gnu.version_r
+ *(.gnu.version_r)
+
+.rel.init
+ *(.rel.init)
+
+.rela.init
+ *(.rela.init)
+
+.rel.text
+ *(.rel.text)
+ *(.rel.text.*)
+ *(.rel.gnu.linkonce.t*)
+
+.rela.text
+ *(.rela.text)
+ *(.rela.text.*)
+ *(.rela.gnu.linkonce.t*)
+
+.rel.fini
+ *(.rel.fini)
+
+.rela.fini
+ *(.rela.fini)
+
+.rel.rodata
+ *(.rel.rodata)
+ *(.rel.rodata.*)
+ *(.rel.gnu.linkonce.r*)
+
+.rela.rodata
+ *(.rela.rodata)
+ *(.rela.rodata.*)
+ *(.rela.gnu.linkonce.r*)
+
+.rel.data
+ *(.rel.data)
+ *(.rel.data.*)
+ *(.rel.gnu.linkonce.d*)
+
+.rela.data
+ *(.rela.data)
+ *(.rela.data.*)
+ *(.rela.gnu.linkonce.d*)
+
+.rel.ctors
+ *(.rel.ctors)
+
+.rela.ctors
+ *(.rela.ctors)
+
+.rel.dtors
+ *(.rel.dtors)
+
+.rela.dtors
+ *(.rela.dtors)
+
+.rel.got
+ *(.rel.got)
+
+.rela.got
+ *(.rela.got)
+
+.rel.bss
+ *(.rel.bss)
+
+.rela.bss
+ *(.rela.bss)
+
+.rel.plt
+ *(.rel.plt)
+
+.rela.plt
+ *(.rela.plt)
+
+.text           0x00000000      0xaf2
+ *(.vectors)
+ .vectors       0x00000000       0x68 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/lib/avr5/crtm168.o
+                0x00000000                __vectors
+                0x00000000                __vector_default
+ *(.vectors)
+ *(.progmem.gcc*)
+ *(.progmem*)
+ .progmem.data  0x00000068       0x40 usbdrv.o
+                0x00000068                usbDescriptorString0
+                0x0000006c                usbDescriptorStringVendor
+                0x0000008e                usbDescriptorStringDevice
+ .progmem.data  0x000000a8       0x77 main.o
+                0x00000120                . = ALIGN (0x2)
+ *fill*         0x0000011f        0x1 00
+                0x00000120                __trampolines_start = .
+ *(.trampolines)
+ .trampolines   0x00000120        0x0 linker stubs
+ *(.trampolines*)
+                0x00000120                __trampolines_end = .
+ *(.jumptables)
+ *(.jumptables*)
+ *(.lowtext)
+ *(.lowtext*)
+                0x00000120                __ctors_start = .
+ *(.ctors)
+                0x00000120                __ctors_end = .
+                0x00000120                __dtors_start = .
+ *(.dtors)
+                0x00000120                __dtors_end = .
+ SORT(*)(.ctors)
+ SORT(*)(.dtors)
+ *(.init0)
+ .init0         0x00000120        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/lib/avr5/crtm168.o
+                0x00000120                __init
+ *(.init0)
+ *(.init1)
+ *(.init1)
+ *(.init2)
+ .init2         0x00000120        0xc /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/lib/avr5/crtm168.o
+ *(.init2)
+ *(.init3)
+ *(.init3)
+ *(.init4)
+ .init4         0x0000012c       0x16 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_copy_data.o)
+                0x0000012c                __do_copy_data
+ .init4         0x00000142       0x10 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_clear_bss.o)
+                0x00000142                __do_clear_bss
+ *(.init4)
+ *(.init5)
+ *(.init5)
+ *(.init6)
+ *(.init6)
+ *(.init7)
+ *(.init7)
+ *(.init8)
+ *(.init8)
+ *(.init9)
+ .init9         0x00000152        0x8 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/lib/avr5/crtm168.o
+ *(.init9)
+ *(.text)
+ .text          0x0000015a        0x4 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/lib/avr5/crtm168.o
+                0x0000015a                __vector_22
+                0x0000015a                __vector_24
+                0x0000015a                __vector_12
+                0x0000015a                __bad_interrupt
+                0x0000015a                __vector_6
+                0x0000015a                __vector_3
+                0x0000015a                __vector_23
+                0x0000015a                __vector_25
+                0x0000015a                __vector_11
+                0x0000015a                __vector_13
+                0x0000015a                __vector_17
+                0x0000015a                __vector_19
+                0x0000015a                __vector_7
+                0x0000015a                __vector_5
+                0x0000015a                __vector_4
+                0x0000015a                __vector_9
+                0x0000015a                __vector_2
+                0x0000015a                __vector_21
+                0x0000015a                __vector_15
+                0x0000015a                __vector_8
+                0x0000015a                __vector_14
+                0x0000015a                __vector_10
+                0x0000015a                __vector_16
+                0x0000015a                __vector_18
+                0x0000015a                __vector_20
+ .text          0x0000015e      0x360 usbdrv.o
+                0x000001d0                usbPoll
+                0x00000172                usbSetInterrupt
+                0x0000015e                usbInit
+ .text          0x000004be      0x2f0 usbdrvasm.o
+                0x000004f0                __vector_1
+                0x000004be                usbCrc16
+                0x000004e8                usbCrc16Append
+ .text          0x000007ae       0xae oddebug.o
+                0x000007ae                odDebug
+ .text          0x0000085c      0x292 main.o
+                0x000008cc                usbFunctionWriteOut
+                0x0000085c                usbFunctionDescriptor
+                0x00000884                usbFunctionSetup
+                0x000008d6                adc
+                0x00000902                main
+                0x000008a4                usbFunctionRead
+                0x000008c0                usbFunctionWrite
+ .text          0x00000aee        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_exit.o)
+ .text          0x00000aee        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_copy_data.o)
+ .text          0x00000aee        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_clear_bss.o)
+                0x00000aee                . = ALIGN (0x2)
+ *(.text.*)
+ .text.libgcc   0x00000aee        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_exit.o)
+ .text.libgcc   0x00000aee        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc   0x00000aee        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_clear_bss.o)
+                0x00000aee                . = ALIGN (0x2)
+ *(.fini9)
+ .fini9         0x00000aee        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_exit.o)
+                0x00000aee                exit
+                0x00000aee                _exit
+ *(.fini9)
+ *(.fini8)
+ *(.fini8)
+ *(.fini7)
+ *(.fini7)
+ *(.fini6)
+ *(.fini6)
+ *(.fini5)
+ *(.fini5)
+ *(.fini4)
+ *(.fini4)
+ *(.fini3)
+ *(.fini3)
+ *(.fini2)
+ *(.fini2)
+ *(.fini1)
+ *(.fini1)
+ *(.fini0)
+ .fini0         0x00000aee        0x4 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_exit.o)
+ *(.fini0)
+                0x00000af2                _etext = .
+
+.data           0x00800100       0x14 load address 0x00000af2
+                0x00800100                PROVIDE (__data_start, .)
+ *(.data)
+ .data          0x00800100        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/lib/avr5/crtm168.o
+ .data          0x00800100        0x3 usbdrv.o
+                0x00800100                usbMsgLen
+                0x00800102                usbTxLen1
+                0x00800101                usbTxLen
+ .data          0x00800103        0x0 usbdrvasm.o
+ .data          0x00800103        0x0 oddebug.o
+ .data          0x00800103       0x10 main.o
+ .data          0x00800113        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_exit.o)
+ .data          0x00800113        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_copy_data.o)
+ .data          0x00800113        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_clear_bss.o)
+ *(.data*)
+ *(.rodata)
+ *(.rodata*)
+ *(.gnu.linkonce.d*)
+                0x00800114                . = ALIGN (0x2)
+ *fill*         0x00800113        0x1 00
+                0x00800114                _edata = .
+                0x00800114                PROVIDE (__data_end, .)
+
+.bss            0x00800114       0x37
+                0x00800114                PROVIDE (__bss_start, .)
+ *(.bss)
+ .bss           0x00800114        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/../../../../avr/lib/avr5/crtm168.o
+ .bss           0x00800114        0x1 usbdrv.o
+ .bss           0x00800115        0x0 usbdrvasm.o
+ .bss           0x00800115        0x0 oddebug.o
+ .bss           0x00800115        0x1 main.o
+ .bss           0x00800116        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_exit.o)
+ .bss           0x00800116        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_copy_data.o)
+ .bss           0x00800116        0x0 /Applications/arduino-0014/hardware/tools/avr/bin/../lib/gcc/avr/4.3.2/avr5/libgcc.a(_clear_bss.o)
+ *(.bss*)
+ *(COMMON)
+ COMMON         0x00800116       0x35 usbdrv.o
+                0x00800116                usbTxBuf
+                0x00800121                usbTxBuf1
+                0x0080012c                usbDeviceAddr
+                0x0080012d                usbRxToken
+                0x0080012e                usbInputBufOffset
+                0x0080012f                usbMsgPtr
+                0x00800131                usbRxLen
+                0x00800132                usbNewDeviceAddr
+                0x00800133                usbCurrentTok
+                0x00800134                usbConfiguration
+                0x00800135                usbRxBuf
+                0x0080014b                PROVIDE (__bss_end, .)
+                0x00000af2                __data_load_start = LOADADDR (.data)
+                0x00000b06                __data_load_end = (__data_load_start + SIZEOF (.data))
+
+.noinit         0x0080014b        0x0
+                0x0080014b                PROVIDE (__noinit_start, .)
+ *(.noinit*)
+                0x0080014b                PROVIDE (__noinit_end, .)
+                0x0080014b                _end = .
+                0x0080014b                PROVIDE (__heap_start, .)
+
+.eeprom         0x00810000        0x0
+ *(.eeprom*)
+                0x00810000                __eeprom_end = .
+
+.fuse
+ *(.fuse)
+ *(.lfuse)
+ *(.hfuse)
+ *(.efuse)
+
+.lock
+ *(.lock*)
+
+.signature
+ *(.signature*)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment
+ *(.comment)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x00000000       0x60
+ *(.debug_aranges)
+ .debug_aranges
+                0x00000000       0x20 usbdrv.o
+ .debug_aranges
+                0x00000020       0x20 oddebug.o
+ .debug_aranges
+                0x00000040       0x20 main.o
+
+.debug_pubnames
+                0x00000000      0x223
+ *(.debug_pubnames)
+ .debug_pubnames
+                0x00000000      0x172 usbdrv.o
+ .debug_pubnames
+                0x00000172       0x1e oddebug.o
+ .debug_pubnames
+                0x00000190       0x93 main.o
+
+.debug_info     0x00000000      0xdda
+ *(.debug_info)
+ .debug_info    0x00000000      0x704 usbdrv.o
+ .debug_info    0x00000704      0x25e oddebug.o
+ .debug_info    0x00000962      0x478 main.o
+ *(.gnu.linkonce.wi.*)
+
+.debug_abbrev   0x00000000      0x5b6
+ *(.debug_abbrev)
+ .debug_abbrev  0x00000000      0x248 usbdrv.o
+ .debug_abbrev  0x00000248       0xf1 oddebug.o
+ .debug_abbrev  0x00000339      0x27d main.o
+
+.debug_line     0x00000000      0x994
+ *(.debug_line)
+ .debug_line    0x00000000      0x442 usbdrv.o
+ .debug_line    0x00000442      0x184 oddebug.o
+ .debug_line    0x000005c6      0x3ce main.o
+
+.debug_frame    0x00000000       0xe0
+ *(.debug_frame)
+ .debug_frame   0x00000000       0x40 usbdrv.o
+ .debug_frame   0x00000040       0x20 oddebug.o
+ .debug_frame   0x00000060       0x80 main.o
+
+.debug_str      0x00000000      0x46b
+ *(.debug_str)
+ .debug_str     0x00000000      0x33b usbdrv.o
+                                0x37d (size before relaxing)
+ .debug_str     0x0000033b       0x3e oddebug.o
+                                0x105 (size before relaxing)
+ .debug_str     0x00000379       0xf2 main.o
+                                0x22f (size before relaxing)
+
+.debug_loc      0x00000000      0x638
+ *(.debug_loc)
+ .debug_loc     0x00000000      0x415 usbdrv.o
+ .debug_loc     0x00000415       0xb3 oddebug.o
+ .debug_loc     0x000004c8      0x170 main.o
+
+.debug_macinfo
+ *(.debug_macinfo)
+OUTPUT(midimega.elf elf32-avr)
+LOAD linker stubs
+
+.debug_ranges   0x00000000      0x180
+ .debug_ranges  0x00000000       0x78 usbdrv.o
+ .debug_ranges  0x00000078       0xd8 oddebug.o
+ .debug_ranges  0x00000150       0x30 main.o
